@@ -3,6 +3,7 @@ import "./globals.css";
 import "./reference-theme.css";
 import "./trussline.css";
 import "./experience-preview.css";
+import "./curricula.css";
 
 export const metadata: Metadata = {
   title: "Trussline International | Interactive Learning",
