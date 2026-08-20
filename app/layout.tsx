@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import "./reference-theme.css";
+import "./trussline.css";
 
 export const metadata: Metadata = {
-  title: "Kora | Adaptive learning",
-  description: "Curriculum intelligence, interactive learning, and adaptive mastery.",
+  title: "Trussline International | Interactive Learning",
+  description: "International interactive learning shaped by curriculum intelligence and adaptive mastery.",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
