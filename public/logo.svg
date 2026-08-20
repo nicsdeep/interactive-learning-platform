@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 120" role="img" aria-labelledby="title desc">
+  <title id="title">Trussline International</title>
+  <desc id="desc">Trussline International logo with the caption Interactive Learning.</desc>
+  <defs><style>
+    .word { fill: #132a4f; font-family: Georgia, 'Times New Roman', serif; font-size: 42px; font-weight: 700; letter-spacing: -1.8px; }
+    .international { fill: #2b70d7; font-family: Arial, Helvetica, sans-serif; font-size: 10px; font-weight: 800; letter-spacing: 2.3px; }
+    .caption { fill: #63728d; font-family: Arial, Helvetica, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 1.75px; }
+  </style></defs>
+  <g transform="translate(5 14)" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M8 69 34 19l26 50" stroke="#132a4f" stroke-width="8"/>
+    <path d="m21 44 13 25 13-25" stroke="#2b70d7" stroke-width="6"/>
+    <path d="M8 69h52" stroke="#f06e3d" stroke-width="7"/>
+    <circle cx="34" cy="19" r="5" fill="#35ad80" stroke="none"/>
+  </g>
+  <text class="word" x="82" y="55">Trussline</text>
+  <text class="international" x="84" y="73">INTERNATIONAL</text>
+  <path d="M84 87h122" stroke="#dce5f0" stroke-width="1"/>
+  <text class="caption" x="84" y="105">INTERACTIVE LEARNING</text>
+</svg>
