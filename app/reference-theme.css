@@ -1,0 +1,9 @@
+/* Blue education-system theme, adapted from the selected dashboard reference. */
+.studio-logo{color:#fff;background:var(--sun);box-shadow:0 6px 16px rgba(23,99,245,.35)}
+.studio-rail nav a,.rail-footer>a{color:#a7badc}.studio-rail nav a.active{color:#fff;background:var(--sun);box-shadow:0 5px 14px rgba(23,99,245,.34)}
+.studio-intro h1 em,.challenge-prompt strong{color:var(--sun)}
+.studio-layout{border:1px solid var(--line);border-radius:15px;box-shadow:0 15px 35px rgba(32,69,138,.08);overflow:hidden}
+.crate{border-color:#d7e3f9;border-radius:12px;background:#f1f6ff}.mango{border-color:#cad8f0;background:#fff8ec}.mango:hover{border-color:var(--sun)}.mango span{background:#ffb049}.mango.picked{border-color:var(--sun);background:var(--sun);box-shadow:0 5px 10px rgba(23,99,245,.2)}.mango.picked span{background:#ffcc74}
+.response{background:#f2f6ff}.response.correct{border-color:#0cae68;color:#078b53;background:#e8f8ef}.response.close{border-color:var(--clay);color:#be551d;background:#fff0e6}
+.evidence-panel{background:var(--sun)}.evidence-heading .kicker{color:#dce8ff}.progress-track{background:rgba(255,255,255,.28)}.progress-track i{background:#ffd364}.evidence-copy,.evidence-list small{color:#e5efff}.evidence-list{border-color:rgba(255,255,255,.24)}.evidence-list>div{border-color:rgba(255,255,255,.24)}.number,.evidence-list small.good{color:#ffd364}.evidence-panel>a:hover{color:#ffd364}
+.journey-card,.companion-card{border-radius:14px}.journey-card li button{background:var(--sun)}
