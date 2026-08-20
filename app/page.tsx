@@ -1,54 +1,63 @@
 "use client";
 
-import { useState } from "react";
-import { ArrowRight, Bell, BookOpen, Bot, ChevronRight, CircleHelp, Compass, Gauge, GraduationCap, Home, MoveUpRight, Play, Settings, Sparkles } from "lucide-react";
+import { useMemo, useState } from "react";
+import { ArrowRight, Bell, BookOpen, Bot, Check, ChevronDown, ChevronRight, Compass, Gauge, GraduationCap, Home, Lightbulb, Play, Settings, Sparkles, Undo2 } from "lucide-react";
 
 const modes = ["Learn", "Solve", "Explore", "Explain", "Master"] as const;
-const mastery = [
-  { name: "Whole numbers", progress: 94, state: "Secure", tone: "secure" },
-  { name: "Fractions", progress: 64, state: "Growing", tone: "growing" },
-  { name: "Measurement", progress: 29, state: "Revisit", tone: "revisit" },
-];
-const pathway = [
-  ["01", "Solve", "Equivalent fractions", "Use a market stall to compare quantities fairly."],
-  ["02", "Explore", "Fraction garden", "Build visual models, then test the pattern you notice."],
-  ["03", "Explain", "Teach it back", "Tell your companion why your strategy works."],
+const milestones = [
+  ["01", "Notice", "See the fraction in a real situation", true],
+  ["02", "Build", "Make a group that represents it", false],
+  ["03", "Explain", "Say why your answer is fair", false],
 ] as const;
 
 export default function HomePage() {
-  const [activeMode, setActiveMode] = useState<(typeof modes)[number]>("Solve");
-  const [inSession, setInSession] = useState(false);
-  const [companionOpen, setCompanionOpen] = useState(false);
-  const progress = inSession ? 72 : 64;
+  const [mode, setMode] = useState<(typeof modes)[number]>("Solve");
+  const [selected, setSelected] = useState<number[]>([]);
+  const [feedback, setFeedback] = useState<"idle" | "close" | "correct">("idle");
+  const [hintOpen, setHintOpen] = useState(false);
+  const selectedSet = useMemo(() => new Set(selected), [selected]);
+  const progress = feedback === "correct" ? 52 : selected.length ? 38 : 24;
 
-  return <main className="app-shell">
-    <aside className="rail" aria-label="Primary navigation">
-      <a className="brand-mark" href="#dashboard" aria-label="Kora home">K</a>
-      <nav>
-        <a className="is-active" href="#dashboard" aria-label="Dashboard"><Home size={19} /></a><a href="#learn" aria-label="Learning library"><BookOpen size={19} /></a><a href="#path" aria-label="Learning path"><Compass size={19} /></a><a href="#mastery" aria-label="Mastery map"><Gauge size={19} /></a><a href="#community" aria-label="Learning community"><GraduationCap size={19} /></a>
-      </nav>
-      <div className="rail-bottom"><a href="#settings" aria-label="Settings"><Settings size={18} /></a><div className="avatar" aria-label="Amara N.">AN</div></div>
+  function toggleMango(index: number) {
+    setFeedback("idle");
+    setSelected((current) => current.includes(index) ? current.filter((item) => item !== index) : [...current, index]);
+  }
+  function checkThinking() { setFeedback(selected.length === 9 ? "correct" : "close"); }
+
+  return <main className="studio-shell">
+    <aside className="studio-rail" aria-label="Primary navigation">
+      <a className="studio-logo" href="#studio" aria-label="Kora home">K</a>
+      <nav><a className="active" href="#studio" aria-label="Studio"><Home size={19} /></a><a href="#library" aria-label="Learning library"><BookOpen size={19} /></a><a href="#journey" aria-label="Learning journey"><Compass size={19} /></a><a href="#mastery" aria-label="Mastery"><Gauge size={19} /></a><a href="#community" aria-label="Community"><GraduationCap size={19} /></a></nav>
+      <div className="rail-footer"><a href="#settings" aria-label="Settings"><Settings size={18} /></a><span aria-label="Amara N.">AN</span></div>
     </aside>
 
-    <section className="workspace" id="dashboard">
-      <header className="topbar"><p className="crumb">My space <ChevronRight size={13} /> <strong>Learning journey</strong></p><div className="top-actions"><button className="icon-button" aria-label="Notifications"><Bell size={17} /></button><button className="curriculum-picker" aria-label="Change curriculum and grade">Kenya CBE <span className="dot">•</span> Grade 4 <ChevronRight size={14} /></button></div></header>
+    <section className="studio" id="studio">
+      <header className="studio-header"><div className="trail"><span>Kenya CBE</span><ChevronRight size={13} /><strong>Grade 4 Mathematics</strong></div><div className="header-actions"><button aria-label="Notifications"><Bell size={17} /></button><button className="profile">Amara <ChevronDown size={14} /></button></div></header>
 
-      <section className="masthead" aria-labelledby="page-title"><p className="eyebrow">Wednesday / 20 August</p><div className="masthead-copy"><h1 id="page-title">Make today&apos;s learning <em>stick.</em></h1><p>One focused step, based on what you know already. You are building confidence with fractions.</p></div><div className="streak" aria-label="Three day learning streak"><strong>03</strong><span>day<br />streak</span></div></section>
+      <section className="studio-intro"><div><p className="kicker">Today&apos;s studio / 04</p><h1>Fractions are about <em>fair shares.</em></h1></div><p>Use the tools, test an idea, and explain your reasoning. There is no timer—take the time your thinking needs.</p></section>
 
-      <section className="mode-bar" aria-label="Learning modes"><span>Choose your way in</span><div role="tablist" aria-label="Learning mode">{modes.map((mode) => <button key={mode} role="tab" aria-selected={activeMode === mode} onClick={() => setActiveMode(mode)}>{mode}</button>)}</div></section>
+      <section className="mode-switcher" aria-label="Learning modes"><span>How do you want to work?</span><div role="tablist">{modes.map((item) => <button key={item} role="tab" aria-selected={mode === item} onClick={() => setMode(item)}>{item}</button>)}</div></section>
 
-      <section className="mission" aria-labelledby="mission-title">
-        <div className="mission-index"><span>Today&apos;s focus</span><b>04</b><i> / 08</i></div>
-        <div className="mission-copy"><p className="eyebrow">Mathematics <span>→</span> Fractions</p><h2 id="mission-title">The market share challenge</h2><p>At a busy market in Nakuru, divide fruit orders fairly and show how you decided. There is more than one way to get it right.</p><div className="mission-actions"><button className="primary-action" onClick={() => setInSession(true)}>{inSession ? "Continue challenge" : "Begin challenge"} <ArrowRight size={17} /></button><span>{inSession ? "You made progress" : "12 min"} <i /> {inSession ? "4 of 5 parts" : "3 of 5 parts"}</span></div></div>
-        <div className="mission-evidence" aria-label={`${progress}% of this challenge complete`}><div className="evidence-top"><span>Evidence collected</span><CircleHelp size={14} /></div><strong>{progress}<small>%</small></strong><div className="evidence-meter"><i style={{ width: `${progress}%` }} /></div><p>{activeMode} mode <span>active</span></p><div className="evidence-mark" aria-hidden="true">¾</div></div>
+      <section className="studio-layout">
+        <article className="activity-canvas" aria-labelledby="challenge-title">
+          <div className="canvas-top"><div><p className="kicker">{mode} / fractions</p><h2 id="challenge-title">The mango stall</h2></div><span className="live-chip"><i /> Working now</span></div>
+          <p className="challenge-prompt">A trader has 12 mangoes. Choose the mangoes that show <strong>three quarters</strong> of the crate.</p>
+          <div className="crate" aria-label="Twelve mangoes, select the group that represents three quarters"><div className="crate-label">12 mangoes<br /><span>tap to make your group</span></div><div className="mango-grid">{Array.from({ length: 12 }, (_, index) => <button key={index} className={`mango ${selectedSet.has(index) ? "picked" : ""}`} aria-pressed={selectedSet.has(index)} aria-label={`Mango ${index + 1}${selectedSet.has(index) ? ", selected" : ""}`} onClick={() => toggleMango(index)}><span /></button>)}</div></div>
+          <div className="canvas-controls"><button className="reset" onClick={() => { setSelected([]); setFeedback("idle"); }}><Undo2 size={15} /> Start again</button><div><span>{selected.length} of 12 selected</span><button className="check" onClick={checkThinking}>Check my thinking <ArrowRight size={16} /></button></div></div>
+          <div className={`response ${feedback}`} role="status">{feedback === "correct" ? <><Check size={17} /> Exactly. 9 out of 12 is three quarters.</> : feedback === "close" ? <><Lightbulb size={17} /> Try making four equal groups first. How many mangoes belong in three groups?</> : <><Sparkles size={17} /> Build a group, then check your thinking.</>}</div>
+        </article>
+
+        <aside className="evidence-panel" aria-label="Learning evidence">
+          <div className="evidence-heading"><p className="kicker">Your evidence</p><span>{progress}%</span></div><div className="progress-track"><i style={{ width: `${progress}%` }} /></div><p className="evidence-copy">This grows when you test, explain, and use a concept in a new place.</p>
+          <div className="evidence-list"><div><span className="number">01</span><p><b>Equivalent groups</b><small>Developing</small></p></div><div><span className="number">02</span><p><b>Parts of a whole</b><small className="good">Secure</small></p></div><div><span className="number">03</span><p><b>Fraction language</b><small>Next up</small></p></div></div>
+          <a href="#mastery">Open mastery map <ArrowRight size={15} /></a>
+        </aside>
       </section>
 
-      <section className="learning-grid">
-        <article className="mastery-card" id="mastery" aria-labelledby="mastery-title"><div className="section-heading"><div><p className="eyebrow">Evidence, not completion</p><h2 id="mastery-title">Your mastery field</h2></div><a href="#mastery">Open map <MoveUpRight size={15} /></a></div><div className="mastery-list">{mastery.map((item) => <div className="mastery-row" key={item.name}><div className="mastery-label"><span>{item.name}</span><b className={item.tone}>{item.state}</b></div><div className="meter"><i className={item.tone} style={{ width: `${item.progress}%` }} /></div></div>)}</div><p className="caption">Your map changes when you apply a concept, explain your thinking, or demonstrate it in a new situation.</p></article>
-        <article className="path-card" id="path" aria-labelledby="path-title"><div className="section-heading"><div><p className="eyebrow">A path that responds</p><h2 id="path-title">What comes next</h2></div><a href="#path">Full plan <MoveUpRight size={15} /></a></div><ol className="path-list">{pathway.map(([number, mode, title, description], index) => <li className={index === 0 ? "is-now" : ""} key={title}><span className="path-number">{number}</span><div><p>{mode}</p><h3>{title}</h3><span>{description}</span></div><button aria-label={`Start ${title}`} onClick={() => setActiveMode(mode as (typeof modes)[number])}><Play size={14} fill="currentColor" /></button></li>)}</ol></article>
+      <section className="below-studio">
+        <article className="journey-card" id="journey"><div className="section-title"><div><p className="kicker">Your pathway</p><h2>What this unlocks</h2></div><span>1 of 3</span></div><ol>{milestones.map(([number, title, copy, current]) => <li className={current ? "current" : ""} key={number}><span>{number}</span><div><b>{title}</b><p>{copy}</p></div>{current && <button aria-label={`Start ${title}`}><Play size={13} fill="currentColor" /></button>}</li>)}</ol></article>
+        <article className={`companion-card ${hintOpen ? "open" : ""}`}><div className="companion-icon"><Bot size={20} /></div><div><p className="kicker">Kora companion</p><h2>Need a different way in?</h2><p>I can use a picture, an everyday example, or let you teach the idea back.</p></div><button onClick={() => setHintOpen(!hintOpen)} aria-expanded={hintOpen}>{hintOpen ? "Hide hint" : "Give me a hint"} <ChevronRight size={16} /></button>{hintOpen && <div className="hint" role="status"><Lightbulb size={16} /> Imagine splitting the 12 mangoes into four equal baskets. Take the mangoes in any three baskets.</div>}</article>
       </section>
-
-      <section className={`companion ${companionOpen ? "is-open" : ""}`} aria-labelledby="companion-title"><div className="companion-symbol"><Sparkles size={18} /></div><div><p className="eyebrow">Kora companion</p><h2 id="companion-title">Try a picture before a rule.</h2><p>I can draw the fractions with you, then ask you to explain what changed.</p></div><button onClick={() => setCompanionOpen((value) => !value)} aria-expanded={companionOpen}>{companionOpen ? "Close note" : "Open a hint"} <Bot size={16} /></button>{companionOpen && <div className="companion-note" role="status">Start with 12 mangoes. Can you make groups that show <strong>three quarters</strong> before writing any numbers?</div>}</section>
     </section>
   </main>;
 }
