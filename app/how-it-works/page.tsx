@@ -1,0 +1,2 @@
+import PublicPage from "../public-page";
+export default function HowItWorksPage(){return <PublicPage eyebrow="The learning engine" title="From curriculum objective to the next meaningful step." copy="Kora does not stop at lesson completion. It observes evidence from practice, explanation, and applied work to understand what a learner needs next." points={["Curriculum-aligned interactive missions", "Evidence-based mastery—not streaks alone", "A grounded companion that changes how it teaches"]}/>}

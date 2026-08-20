@@ -1,0 +1,2 @@
+import PublicPage from "../public-page";
+export default function SchoolsPage(){return <PublicPage eyebrow="For schools" title="Curriculum coverage with a clearer view of understanding." copy="Kora will give teachers and schools curriculum-aware insight while protecting the learner experience from an admin-first interface." points={["Class and learner evidence", "Common misconceptions and intervention signals", "Curriculum coverage and meaningful assessment"]}/>}

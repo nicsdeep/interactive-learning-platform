@@ -1,0 +1,2 @@
+import PublicPage from "../public-page";
+export default function FamiliesPage(){return <PublicPage eyebrow="For families" title="See learning grow with more clarity and less guesswork." copy="Families should be able to understand progress, confidence, and next steps without turning learning into a spreadsheet." points={["A shared picture of learner strengths", "Support ideas tied to the current curriculum", "A journey that can move with a learner"]}/>}

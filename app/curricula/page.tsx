@@ -1,0 +1,2 @@
+import PublicPage from "../public-page";
+export default function CurriculaPage(){return <PublicPage eyebrow="Curriculum paths" title="A shared engine, grounded in every learning system." copy="Kora keeps curriculum structures separate while using one learning engine for interactive experiences, evidence, mastery, and next steps." points={["Kenya CBE/CBC — available now", "USA standards layer — structured for state and framework variation", "England National Curriculum — a distinct future layer"]}/>}
