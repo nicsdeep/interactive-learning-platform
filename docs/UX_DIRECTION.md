@@ -1,4 +1,8 @@
-# UX Direction — Kora
+# UX Direction — Trussline International
+
+## Brand mark guardrails
+
+Trussline International's mark communicates learning progress, curriculum structure, and connection across education systems. Use a compact horizontal institution-style lockup, never a generic AI sparkle, graduation cap, or abstract fintech symbol. The required caption is **Interactive Learning**. The palette is deep learning navy, international blue, a restrained coral highlight, and a small green mastery accent. Every mark must remain clear at mobile navigation size and on light backgrounds.
 
 ## Standing design references
 
