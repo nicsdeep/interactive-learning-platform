@@ -24,6 +24,7 @@
 - Use deliberate motion (150–250ms with reduced-motion support), real copy, clear metadata, and consistent icon weight.
 - Do not use purple/blue gradients, glassmorphism, generic marketing filler, or copied third-party layouts.
 - Public Home uses a dark navy atmosphere, bright blue action system, small orange learning-status accents, an animated daily challenge timer, and a region selector. Kenya is the active curriculum; future regions must be presented honestly as availability expands.
+- The selected case study's **internal white landing page** (not its dark external portfolio framing) is the current Home reference: a light navigation bar, bold blue/red editorial emphasis, a warm human learning-guide image, direct CTAs, and concise proof metrics. Kora uses an original generated guide asset and original copy.
 
 ## Source-of-truth relationship
 
