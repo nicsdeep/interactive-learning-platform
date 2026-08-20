@@ -2,6 +2,8 @@
 
 Curriculum intelligence, interactive learning, and adaptive mastery—starting with Kenya CBE/CBC, and designed for USA standards and England's National Curriculum as independent curriculum layers on one shared learning engine.
 
+The standing product direction and delivery guardrails are in [the product charter](docs/PRODUCT_CHARTER.md).
+
 ## Foundation
 
 - `app/` — learner experience and application shell
