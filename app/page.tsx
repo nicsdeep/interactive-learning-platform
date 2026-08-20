@@ -1,63 +1,9 @@
-"use client";
-
-import { useMemo, useState } from "react";
-import { ArrowRight, Bell, BookOpen, Bot, Check, ChevronDown, ChevronRight, Compass, Gauge, GraduationCap, Home, Lightbulb, Play, Settings, Sparkles, Undo2 } from "lucide-react";
-
-const modes = ["Learn", "Solve", "Explore", "Explain", "Master"] as const;
-const milestones = [
-  ["01", "Notice", "See the fraction in a real situation", true],
-  ["02", "Build", "Make a group that represents it", false],
-  ["03", "Explain", "Say why your answer is fair", false],
-] as const;
+import { ArrowRight, ChevronDown, ChevronRight, CircleCheck, Sparkles } from "lucide-react";
 
 export default function HomePage() {
-  const [mode, setMode] = useState<(typeof modes)[number]>("Solve");
-  const [selected, setSelected] = useState<number[]>([]);
-  const [feedback, setFeedback] = useState<"idle" | "close" | "correct">("idle");
-  const [hintOpen, setHintOpen] = useState(false);
-  const selectedSet = useMemo(() => new Set(selected), [selected]);
-  const progress = feedback === "correct" ? 52 : selected.length ? 38 : 24;
-
-  function toggleMango(index: number) {
-    setFeedback("idle");
-    setSelected((current) => current.includes(index) ? current.filter((item) => item !== index) : [...current, index]);
-  }
-  function checkThinking() { setFeedback(selected.length === 9 ? "correct" : "close"); }
-
-  return <main className="studio-shell">
-    <aside className="studio-rail" aria-label="Primary navigation">
-      <a className="studio-logo" href="#studio" aria-label="Kora home">K</a>
-      <nav><a className="active" href="#studio" aria-label="Studio"><Home size={19} /></a><a href="#library" aria-label="Learning library"><BookOpen size={19} /></a><a href="#journey" aria-label="Learning journey"><Compass size={19} /></a><a href="#mastery" aria-label="Mastery"><Gauge size={19} /></a><a href="#community" aria-label="Community"><GraduationCap size={19} /></a></nav>
-      <div className="rail-footer"><a href="#settings" aria-label="Settings"><Settings size={18} /></a><span aria-label="Amara N.">AN</span></div>
-    </aside>
-
-    <section className="studio" id="studio">
-      <header className="studio-header"><div className="trail"><span>Kenya CBE</span><ChevronRight size={13} /><strong>Grade 4 Mathematics</strong></div><div className="header-actions"><button aria-label="Notifications"><Bell size={17} /></button><button className="profile">Amara <ChevronDown size={14} /></button></div></header>
-
-      <section className="studio-intro"><div><p className="kicker">Today&apos;s studio / 04</p><h1>Fractions are about <em>fair shares.</em></h1></div><p>Use the tools, test an idea, and explain your reasoning. There is no timer—take the time your thinking needs.</p></section>
-
-      <section className="mode-switcher" aria-label="Learning modes"><span>How do you want to work?</span><div role="tablist">{modes.map((item) => <button key={item} role="tab" aria-selected={mode === item} onClick={() => setMode(item)}>{item}</button>)}</div></section>
-
-      <section className="studio-layout">
-        <article className="activity-canvas" aria-labelledby="challenge-title">
-          <div className="canvas-top"><div><p className="kicker">{mode} / fractions</p><h2 id="challenge-title">The mango stall</h2></div><span className="live-chip"><i /> Working now</span></div>
-          <p className="challenge-prompt">A trader has 12 mangoes. Choose the mangoes that show <strong>three quarters</strong> of the crate.</p>
-          <div className="crate" aria-label="Twelve mangoes, select the group that represents three quarters"><div className="crate-label">12 mangoes<br /><span>tap to make your group</span></div><div className="mango-grid">{Array.from({ length: 12 }, (_, index) => <button key={index} className={`mango ${selectedSet.has(index) ? "picked" : ""}`} aria-pressed={selectedSet.has(index)} aria-label={`Mango ${index + 1}${selectedSet.has(index) ? ", selected" : ""}`} onClick={() => toggleMango(index)}><span /></button>)}</div></div>
-          <div className="canvas-controls"><button className="reset" onClick={() => { setSelected([]); setFeedback("idle"); }}><Undo2 size={15} /> Start again</button><div><span>{selected.length} of 12 selected</span><button className="check" onClick={checkThinking}>Check my thinking <ArrowRight size={16} /></button></div></div>
-          <div className={`response ${feedback}`} role="status">{feedback === "correct" ? <><Check size={17} /> Exactly. 9 out of 12 is three quarters.</> : feedback === "close" ? <><Lightbulb size={17} /> Try making four equal groups first. How many mangoes belong in three groups?</> : <><Sparkles size={17} /> Build a group, then check your thinking.</>}</div>
-        </article>
-
-        <aside className="evidence-panel" aria-label="Learning evidence">
-          <div className="evidence-heading"><p className="kicker">Your evidence</p><span>{progress}%</span></div><div className="progress-track"><i style={{ width: `${progress}%` }} /></div><p className="evidence-copy">This grows when you test, explain, and use a concept in a new place.</p>
-          <div className="evidence-list"><div><span className="number">01</span><p><b>Equivalent groups</b><small>Developing</small></p></div><div><span className="number">02</span><p><b>Parts of a whole</b><small className="good">Secure</small></p></div><div><span className="number">03</span><p><b>Fraction language</b><small>Next up</small></p></div></div>
-          <a href="#mastery">Open mastery map <ArrowRight size={15} /></a>
-        </aside>
-      </section>
-
-      <section className="below-studio">
-        <article className="journey-card" id="journey"><div className="section-title"><div><p className="kicker">Your pathway</p><h2>What this unlocks</h2></div><span>1 of 3</span></div><ol>{milestones.map(([number, title, copy, current]) => <li className={current ? "current" : ""} key={number}><span>{number}</span><div><b>{title}</b><p>{copy}</p></div>{current && <button aria-label={`Start ${title}`}><Play size={13} fill="currentColor" /></button>}</li>)}</ol></article>
-        <article className={`companion-card ${hintOpen ? "open" : ""}`}><div className="companion-icon"><Bot size={20} /></div><div><p className="kicker">Kora companion</p><h2>Need a different way in?</h2><p>I can use a picture, an everyday example, or let you teach the idea back.</p></div><button onClick={() => setHintOpen(!hintOpen)} aria-expanded={hintOpen}>{hintOpen ? "Hide hint" : "Give me a hint"} <ChevronRight size={16} /></button>{hintOpen && <div className="hint" role="status"><Lightbulb size={16} /> Imagine splitting the 12 mangoes into four equal baskets. Take the mangoes in any three baskets.</div>}</article>
-      </section>
-    </section>
+  return <main className="map-home">
+    <header className="map-nav"><a className="map-brand" href="/">Kora<span>Learning</span></a><nav aria-label="Public navigation"><a href="#how-it-works">How it works</a><a href="#curricula">Curricula</a><a href="#families">For families</a></nav><div><a className="sign-in" href="/learn">Sign in</a><a className="nav-cta" href="/learn">Start learning <ArrowRight size={15} /></a></div></header>
+    <section className="map-hero" aria-labelledby="hero-title"><div className="hero-copy"><p className="home-kicker"><i /> Curriculum intelligence, made human</p><h1 id="hero-title">Learning that knows <em>where you&apos;re going.</em></h1><p className="hero-text">Kora turns the curriculum into interactive experiences, follows the evidence in a learner&apos;s work, and finds the next step that will help it stick.</p><div className="hero-actions"><a className="home-primary" href="/learn">Start with Kenya CBE <ArrowRight size={17} /></a><a className="home-secondary" href="#how-it-works">See the learning map <ChevronDown size={16} /></a></div><p className="home-note"><CircleCheck size={15} /> Kenya CBE/CBC is live now</p></div><div className="learning-map" aria-label="A visual learning route from curriculum to personalized next step"><div className="map-grid" /><div className="route route-one" /><div className="route route-two" /><div className="map-start map-pin"><span>1</span><p>Kenya CBE<br /><b>Grade 4</b></p></div><div className="map-objective map-pin"><span>2</span><p>Learning outcome<br /><b>Fractions</b></p></div><div className="map-experience"><p>Today&apos;s studio</p><h2>The mango stall</h2><span>Interactive challenge</span><div className="mini-fruit"><i /><i /><i /><i /></div></div><div className="map-evidence map-pin"><span>3</span><p>Evidence<br /><b>64% secure</b></p></div><div className="map-next map-pin"><span>4</span><p>Next step<br /><b>Explain it back</b></p></div><div className="map-companion"><Sparkles size={16} /><span>Kora is adapting your route</span></div></div></section>
+    <section className="hero-proof" id="how-it-works"><p>Not a digital textbook. Not a generic chatbot.</p><strong>One learning engine that understands curriculum, evidence, and the learner in front of it.</strong><a href="#curricula">Explore the curriculum paths <ChevronRight size={16} /></a></section>
   </main>;
 }
