@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowRight, ChevronDown, Globe2, Menu, Search, Sparkles, X } from "lucide-react";
+import { ArrowRight, BookOpen, ChevronDown, Compass, Globe2, GraduationCap, Info, Library, Menu, Search, School, Sparkles, X } from "lucide-react";
 import { countries } from "countries-list";
 import { useMemo, useState } from "react";
 
@@ -27,12 +27,12 @@ export default function HomePage() {
       <Link href="/" className="home-brand" aria-label="Trussline International home">{logo}</Link>
       <button className="home-menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label="Open navigation">{menuOpen ? <X /> : <Menu />}</button>
       <nav className={menuOpen ? "is-open" : ""}>
-        <Link href="/how-it-works">Our approach <ChevronDown size={14} /></Link>
-        <Link href="/curricula">Programs &amp; Subjects <ChevronDown size={14} /></Link>
-        <Link href="/how-it-works">For Learners <ChevronDown size={14} /></Link>
-        <Link href="/schools">For Schools <ChevronDown size={14} /></Link>
-        <Link href="/families">Resources <ChevronDown size={14} /></Link>
-        <Link href="/">About Us <ChevronDown size={14} /></Link>
+        <Link href="/how-it-works"><Compass className="mobile-nav-icon" size={18} /><span>Our approach</span><ChevronDown size={14} /></Link>
+        <Link href="/curricula"><BookOpen className="mobile-nav-icon" size={18} /><span>Programs &amp; Subjects</span><ChevronDown size={14} /></Link>
+        <Link href="/how-it-works"><GraduationCap className="mobile-nav-icon" size={18} /><span>For Learners</span><ChevronDown size={14} /></Link>
+        <Link href="/schools"><School className="mobile-nav-icon" size={18} /><span>For Schools</span><ChevronDown size={14} /></Link>
+        <Link href="/families"><Library className="mobile-nav-icon" size={18} /><span>Resources</span><ChevronDown size={14} /></Link>
+        <Link href="/"><Info className="mobile-nav-icon" size={18} /><span>About Us</span><ChevronDown size={14} /></Link>
       </nav>
       <div className="home-nav-actions"><button className="home-search" onClick={() => setSearchOpen(!searchOpen)}><Search size={18} /> <span>Search</span></button><button className="home-region-button" onClick={() => document.getElementById("region-selector")?.scrollIntoView({ behavior: "smooth" })}><Globe2 size={18} /> <span>Select region</span><ChevronDown size={15} /></button><Link href="/learn" className="home-primary">Join the waitlist <ArrowRight size={17} /></Link></div>
       {searchOpen && <div className="home-search-popover"><Search size={17} /><input autoFocus aria-label="Search Trussline" placeholder="Search Trussline" /><button onClick={() => setSearchOpen(false)} aria-label="Close search"><X size={16} /></button></div>}
