@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 
-type BrandLogoProps = { dark?: boolean };
+type BrandLogoProps = { dark?: boolean; monochrome?: boolean };
 
 type Rgba = { red: number; green: number; blue: number; alpha: number };
 
@@ -30,7 +30,7 @@ function hasDarkSurface(element: HTMLElement) {
   return false;
 }
 
-export default function BrandLogo({ dark = false }: BrandLogoProps) {
+export default function BrandLogo({ dark = false, monochrome = false }: BrandLogoProps) {
   const logoRef = useRef<HTMLSpanElement>(null);
   const [onDarkSurface, setOnDarkSurface] = useState(dark);
 
@@ -57,5 +57,5 @@ export default function BrandLogo({ dark = false }: BrandLogoProps) {
     };
   }, []);
 
-  return <span ref={logoRef} role="img" className={`brand-logo${onDarkSurface ? " is-dark" : ""}`} data-logo-contrast={onDarkSurface ? "dark" : "light"} aria-label="Trussline Interactive Learning"><svg viewBox="0 0 72 54" aria-hidden="true"><path d="M8 41 25 22l15 10L59 8" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="4"/><path d="M7 42h59" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" opacity=".18"/><circle cx="8" cy="41" r="5" fill="var(--logo-coral)"/><circle cx="25" cy="22" r="5" fill="var(--logo-blue)"/><circle cx="40" cy="32" r="5" fill="var(--logo-teal)"/><circle cx="59" cy="8" r="5" fill="var(--logo-amber)"/></svg><span><strong>Trussline</strong><small><i>INTERACTIVE</i><em>LEARNING</em></small></span></span>;
+  return <span ref={logoRef} role="img" className={`brand-logo${onDarkSurface ? " is-dark" : ""}${monochrome ? " is-monochrome" : ""}`} data-logo-contrast={onDarkSurface ? "dark" : "light"} aria-label="Trussline Interactive Learning"><svg viewBox="0 0 72 54" aria-hidden="true"><path d="M8 41 25 22l15 10L59 8" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="4"/><path d="M7 42h59" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="4" opacity=".18"/><circle cx="8" cy="41" r="5" fill="var(--logo-coral)"/><circle cx="25" cy="22" r="5" fill="var(--logo-blue)"/><circle cx="40" cy="32" r="5" fill="var(--logo-teal)"/><circle cx="59" cy="8" r="5" fill="var(--logo-amber)"/></svg><span><strong>Trussline</strong><small><i>INTERACTIVE</i><em>LEARNING</em></small></span></span>;
 }

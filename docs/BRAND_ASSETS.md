@@ -9,7 +9,7 @@ All logo files are vector SVGs and use the full **Trussline / Interactive Learni
 - `public/brand/logo-mono-white.svg` — single-colour white logo
 - `public/brand/logo-compact.svg` — constrained-space logo
 
-Use the colour variants only on their intended background contrast. Do not recolour the waypoint dots arbitrarily: coral is attention, blue is primary action, teal is progress, and amber is in-progress state.
+Use the colour variants only on their intended background contrast. Light-surface marks carry the waypoint palette; the full logo becomes monochrome on dark or strong-brand surfaces so it remains quiet, clear, and legible.
 
 ## Runtime logo treatment
 

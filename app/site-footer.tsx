@@ -3,5 +3,53 @@ import { ArrowUpRight, Globe2 } from "lucide-react";
 import BrandLogo from "./brand-logo";
 
 export default function SiteFooter() {
-  return <footer className="site-footer" data-logo-surface="dark"><div className="site-footer-top"><Link href="/" className="site-footer-brand"><BrandLogo /></Link><p>Interactive learning that understands the learner, the curriculum, and the world around them.</p><Link href="/learn" className="site-footer-cta">Join the waitlist <ArrowUpRight size={16} /></Link></div><div className="site-footer-links"><div><b>Explore</b><Link href="/how-it-works">Our approach</Link><Link href="/curricula">Programs &amp; subjects</Link></div><div><b>For people</b><Link href="/families">Families</Link><Link href="/schools">Schools</Link></div><div><b>Global learning</b><span><Globe2 size={14} /> Kenya · USA · England</span><span>More curriculum layers ahead</span></div></div><div className="site-footer-bottom"><span>© 2026 Trussline International</span><span>Interactive Learning</span><span>Built for meaningful progress.</span></div></footer>;
+  return <footer id="site-footer" className="site-footer" data-logo-surface="dark">
+    <svg className="site-footer-route-profile" viewBox="0 0 1440 90" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+      <path d="M0 90V74h58V57h34v17h104V46h46v25h78V32h43v38h87V51h52v23h132V38h38v29h80V25h45v47h110V52h54v22h106V43h43v25h92V31h39v43h108V56h43v18h69V90Z" fill="currentColor" />
+    </svg>
+    <div className="site-footer-surface">
+      <div className="site-footer-inner">
+        <div className="site-footer-grid">
+          <section className="site-footer-intro" aria-labelledby="footer-purpose">
+            <p className="site-footer-eyebrow">ABOUT TRUSSLINE</p>
+            <h2 id="footer-purpose">A learning route that grows with every learner.</h2>
+            <p>Interactive learning that understands the learner, the curriculum, and the world around them.</p>
+          </section>
+
+          <nav className="site-footer-column" aria-label="Learning routes">
+            <h2>Learning routes</h2>
+            <Link href="/curricula">Kenya CBE/CBC</Link>
+            <Link href="/curricula">USA standards</Link>
+            <Link href="/curricula">England National Curriculum</Link>
+          </nav>
+
+          <nav className="site-footer-column" aria-label="Explore Trussline">
+            <h2>Explore</h2>
+            <Link href="/how-it-works">Our approach</Link>
+            <Link href="/curricula">Programs &amp; subjects</Link>
+            <Link href="/families">For families</Link>
+            <Link href="/schools">For schools</Link>
+          </nav>
+
+          <section className="site-footer-column site-footer-global" aria-labelledby="footer-global-title">
+            <h2 id="footer-global-title">Stay close</h2>
+            <p><Globe2 size={15} aria-hidden="true" /> Learning internationally</p>
+            <span>See what we are building next.</span>
+            <Link href="/learn" className="site-footer-cta">Join the waitlist <ArrowUpRight size={16} /></Link>
+          </section>
+        </div>
+
+        <div className="site-footer-signature">
+          <Link href="/" aria-label="Trussline Interactive Learning home"><BrandLogo monochrome /></Link>
+          <p>Interactive learning, internationally.</p>
+        </div>
+
+        <div className="site-footer-bottom">
+          <span>© 2026 Trussline International</span>
+          <span>Built for meaningful progress.</span>
+          <span>Interactive Learning</span>
+        </div>
+      </div>
+    </div>
+  </footer>;
 }
