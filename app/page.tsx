@@ -25,7 +25,7 @@ export default function HomePage() {
   const chooseContinent = (code: string) => { setContinent(code); setCountry(countryData.find((item) => item.continent === code)?.code ?? "AQ"); setCountrySearch(""); setCountryOpen(false); };
   return <main className="home-refined">
     <header className="home-nav">
-      <Link href="/" className="home-brand" aria-label="Trussline International home">{logo}</Link>
+      <Link href="/" className="home-brand" aria-label="Trussline Interactive Learning home">{logo}</Link>
       <button className="home-menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label="Open navigation">{menuOpen ? <X /> : <Menu />}</button>
       <nav className={menuOpen ? "is-open" : ""}>
         <Link href="/how-it-works"><Compass className="mobile-nav-icon" size={18} /><span>Our approach</span><ChevronDown size={14} /></Link>
