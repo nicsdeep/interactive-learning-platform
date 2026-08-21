@@ -57,10 +57,10 @@ const timezoneCountries: Record<string, string> = {
 };
 
 const sourceCopy: Record<LocationSource, string> = {
-  detecting: "Checking your device",
-  device: "Suggested from device settings",
-  network: "Approximate network location",
-  manual: "Your chosen learning region",
+  detecting: "Setting your learning region",
+  device: "Using your device settings",
+  network: "Your learning region is ready",
+  manual: "Your selected learning region",
   unavailable: "Choose your learning region",
 };
 
@@ -86,6 +86,15 @@ function deviceTimeZone() {
   return Intl.DateTimeFormat().resolvedOptions().timeZone ?? "";
 }
 
+function localTimeLabel(timeZone: string) {
+  if (!timeZone) return "Setting your local time";
+  try {
+    return new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit", timeZone, timeZoneName: "short" }).format(new Date());
+  } catch {
+    return timeZone.replaceAll("_", " ");
+  }
+}
+
 function countryFlag(code: string) {
   return getEmojiFlag(code as TCountryCode);
 }
@@ -104,6 +113,7 @@ export default function HomePage() {
   const [locationSource, setLocationSource] = useState<LocationSource>("detecting");
   const [locationCity, setLocationCity] = useState("");
   const [timeZone, setTimeZone] = useState("");
+  const [localTime, setLocalTime] = useState("");
   const [checkingLocation, setCheckingLocation] = useState(false);
   const manualSelectionRef = useRef(false);
 
@@ -144,13 +154,29 @@ export default function HomePage() {
     setLocationSource("detecting");
     const nextTimeZone = deviceTimeZone();
     setTimeZone(nextTimeZone);
-    applyDetectedCountry(countryFromDeviceLocale(), "device");
-    applyDetectedCountry(timezoneCountries[nextTimeZone], "device");
+    setLocalTime(localTimeLabel(nextTimeZone));
+    const deviceCountry = timezoneCountries[nextTimeZone] ?? countryFromDeviceLocale();
+    const hasDeviceRegion = applyDetectedCountry(deviceCountry, "device");
+    if (hasDeviceRegion) {
+      setCheckingLocation(false);
+      return;
+    }
     void detectLocation();
   }, [applyDetectedCountry, detectLocation]);
 
   useEffect(() => {
     syncDeviceContext();
+    const updateClock = () => {
+      const currentTimeZone = deviceTimeZone();
+      setTimeZone(currentTimeZone);
+      setLocalTime(localTimeLabel(currentTimeZone));
+    };
+    const timer = window.setInterval(updateClock, 30_000);
+    window.addEventListener("focus", updateClock);
+    return () => {
+      window.clearInterval(timer);
+      window.removeEventListener("focus", updateClock);
+    };
   }, [syncDeviceContext]);
 
   const availableCountries = useMemo(() => countryData.filter((item) => !continent || item.continent === continent), [continent]);
@@ -186,7 +212,7 @@ export default function HomePage() {
   };
 
   const locationName = locationCity && country ? `${locationCity}, ${selectedCountry}` : selectedCountry;
-  const displayTimeZone = timeZone ? timeZone.replaceAll("_", " ") : "Detecting device time zone";
+  const displayLocalTime = localTime || localTimeLabel(timeZone);
 
   return <main className="home-refined">
     <header className="home-nav">
@@ -210,18 +236,18 @@ export default function HomePage() {
     <section className="region-selector" id="region-selector" aria-labelledby="learning-region-title">
       <div className="region-overview">
         <span className="region-marker" aria-hidden="true"><MapPin size={20} /></span>
-        <div><p className="region-eyebrow">YOUR LEARNING REGION</p><h2 id="learning-region-title">Built around where you learn.</h2><p>We use your device time zone and approximate network location to suggest the right starting context.</p></div>
+        <div><p className="region-eyebrow">YOUR LEARNING REGION</p><h2 id="learning-region-title">Built around where you learn.</h2><p>Your device time zone helps us prepare a learning route that feels local from the start.</p></div>
       </div>
       <div className="region-current" aria-live="polite">
         <span className={`region-source is-${locationSource}`}><i />{sourceCopy[locationSource]}</span>
-        <div className="region-current-place"><CountryFlag code={country || undefined} className="country-flag" /><div><strong>{locationName}</strong><small>{selectedContinent} learning context</small></div><button className="region-refresh" type="button" onClick={syncDeviceContext} disabled={checkingLocation} aria-label="Refresh detected location"><RefreshCw size={15} className={checkingLocation ? "is-spinning" : ""} /><span>Refresh</span></button></div>
-        <div className="region-timezone"><Clock3 size={15} /><span>Device time zone</span><b>{displayTimeZone}</b></div>
+        <div className="region-current-place"><CountryFlag code={country || undefined} className="country-flag" /><div><strong>{locationName}</strong><small>{selectedContinent} learning context</small></div><button className="region-refresh" type="button" onClick={syncDeviceContext} disabled={checkingLocation} aria-label="Update learning region"><RefreshCw size={15} className={checkingLocation ? "is-spinning" : ""} /><span>Update</span></button></div>
+        <div className="region-timezone"><Clock3 size={15} /><span>Your local time</span><strong>{displayLocalTime}</strong></div>
       </div>
       <div className="region-controls">
         <label><span>CONTINENT</span><select value={continent} onChange={(event) => chooseContinent(event.target.value)} aria-label="Select continent"><option value="" disabled>Choose a continent</option>{continents.map((item) => <option key={item.code} value={item.code}>{item.name}</option>)}</select></label>
         <div className="country-picker"><span>COUNTRY</span><button type="button" onClick={() => setCountryOpen(!countryOpen)} aria-expanded={countryOpen} aria-haspopup="listbox"><CountryFlag code={country || undefined} className="country-button-flag" /><b>{country ? selectedCountry : "Choose a country"}</b><ChevronDown size={16} /></button>{countryOpen && <><button className="country-options-backdrop" type="button" aria-label="Close country picker" onClick={() => setCountryOpen(false)} /><div className="country-options" role="listbox" aria-label="Countries"><div className="country-options-search"><Search size={16} /><input autoFocus placeholder="Search any country" value={countrySearch} onChange={(event) => setCountrySearch(event.target.value)} onKeyDown={(event) => { if (event.key === "Escape") setCountryOpen(false); }} aria-label="Search countries" /><button type="button" onClick={() => setCountryOpen(false)} aria-label="Close country picker"><X size={16} /></button></div><div className="country-options-list">{matchingCountries.map((item) => <button type="button" key={item.code} role="option" aria-selected={item.code === country} onClick={() => chooseCountry(item.code)}><CountryFlag code={item.code} className="country-option-flag" /><b>{item.name}</b><small>{continents.find((entry) => entry.code === item.continent)?.name}</small></button>)}</div></div></>}</div>
       </div>
-      <div className="region-note"><CheckCircle2 size={17} /><p>Your location only shapes this starting suggestion. You remain in control and can change it at any time.</p></div>
+      <div className="region-note"><CheckCircle2 size={17} /><p>Your learning region helps tailor what you see first. You can change it any time.</p></div>
     </section>
     <section className="home-context"><p>THE TRUSSLINE ROUTE</p><div><span>Kenya CBE/CBC</span><span>USA standards</span><span>England National Curriculum</span><span>Interactive mastery</span><span>Curriculum intelligence</span></div></section>
   </main>;

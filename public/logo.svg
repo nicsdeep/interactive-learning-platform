@@ -5,5 +5,5 @@
     <circle cx="5" cy="49" r="5" fill="#E8663D" stroke="none"/><circle cx="25" cy="25" r="5" fill="#1F44C9" stroke="none"/><circle cx="43" cy="37" r="5" fill="#17A07A" stroke="none"/><circle cx="66" cy="8" r="5" fill="#E8A32D" stroke="none"/>
   </g>
   <text x="94" y="55" fill="#0C1A2E" font-family="Fraunces, Georgia, serif" font-size="41" font-weight="400" letter-spacing="-1.5">Trussline</text>
-  <text x="96" y="76" fill="#1F44C9" font-family="'JetBrains Mono', Arial, sans-serif" font-size="10" font-weight="500" letter-spacing=".8">INTERACTIVE</text><text x="178" y="76" fill="#17A07A" font-family="'JetBrains Mono', Arial, sans-serif" font-size="10" font-weight="500" letter-spacing=".8">LEARNING</text>
+  <text x="96" y="76" fill="#1F44C9" font-family="'JetBrains Mono', Arial, sans-serif" font-size="10" font-weight="500" letter-spacing=".8">INTERACTIVE</text><text x="175" y="76" fill="#17A07A" font-family="'JetBrains Mono', Arial, sans-serif" font-size="10" font-weight="500" letter-spacing=".8">LEARNING</text>
 </svg>
