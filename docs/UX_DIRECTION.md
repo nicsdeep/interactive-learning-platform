@@ -23,6 +23,8 @@ Trussline International's mark communicates learning progress, curriculum struct
 
 ## Interface rules
 
+- Mobile is a first-class acceptance criterion for every change: no horizontal overflow, cropped content, overlapping controls, or unreadably small brand elements. Verify the 360px viewport before each production push.
+- Public headers remain sticky while scrolling. On mobile, navigation opens as a left-aligned panel below the header with clear touch targets.
 - Responsive from small phones through desktop; no desktop-only dashboard assumptions.
 - Use blue for navigation, progress, and primary action; preserve clear contrast and keyboard focus.
 - Learner pages are activity-first: active learning canvas, evidence, companion, and next step.
