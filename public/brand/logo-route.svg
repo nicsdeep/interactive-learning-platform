@@ -1,12 +1,11 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 120" role="img" aria-labelledby="title desc">
-  <title id="title">Trussline International Route logo</title><desc id="desc">An open book becoming a learning route.</desc>
+  <title id="title">Trussline Interactive Learning Route logo</title><desc id="desc">An open book becoming a learning route.</desc>
   <g transform="translate(5 17)" fill="none" stroke-linecap="round" stroke-linejoin="round">
     <path d="M4 18c15-6 27-4 39 5v44C31 58 19 57 4 63V18Z" fill="#edf4ff" stroke="#17325d" stroke-width="5"/>
     <path d="M82 18c-15-6-27-4-39 5v44c12-9 24-10 39-4V18Z" fill="#fff4ed" stroke="#17325d" stroke-width="5"/>
     <path d="M20 35h17M49 38l11 9-18 17" stroke="#2474df" stroke-width="5"/>
     <circle cx="65" cy="65" r="5" fill="#f0643b" stroke="none"/>
   </g>
-  <text x="108" y="53" fill="#17325d" font-family="Georgia,serif" font-size="41" font-weight="700" letter-spacing="-1.7">Trussline</text>
-  <text x="110" y="72" fill="#2474df" font-family="Arial,sans-serif" font-size="10" font-weight="800" letter-spacing="2.4">INTERNATIONAL</text>
-  <text x="110" y="98" fill="#667690" font-family="Arial,sans-serif" font-size="11" font-weight="700" letter-spacing="1.8">INTERACTIVE LEARNING</text>
+  <text x="108" y="53" fill="#0C1A2E" font-family="Fraunces, Georgia, serif" font-size="41" font-weight="400" letter-spacing="-1.7">Trussline</text>
+  <text x="110" y="76" fill="#1F44C9" font-family="'JetBrains Mono', Arial, sans-serif" font-size="10" font-weight="500" letter-spacing=".8">INTERACTIVE</text><text x="192" y="76" fill="#17A07A" font-family="'JetBrains Mono', Arial, sans-serif" font-size="10" font-weight="500" letter-spacing=".8">LEARNING</text>
 </svg>

@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 120" role="img" aria-labelledby="title desc">
-  <title id="title">Trussline International Bridge logo</title><desc id="desc">A bridge of learning connecting learners to their next step.</desc>
+  <title id="title">Trussline Interactive Learning Bridge logo</title><desc id="desc">A bridge of learning connecting learners to their next step.</desc>
   <g transform="translate(4 19)" fill="none" stroke-linecap="round" stroke-linejoin="round">
     <path d="M5 65c19-41 45-41 72 0" stroke="#17325d" stroke-width="7"/>
     <path d="m19 45 10 20m4-28 10 28m5-28 9 28m5-20 9 20" stroke="#2474df" stroke-width="4"/>
@@ -7,7 +7,6 @@
     <circle cx="5" cy="65" r="5" fill="#36a97f" stroke="none"/>
     <circle cx="77" cy="65" r="5" fill="#36a97f" stroke="none"/>
   </g>
-  <text x="108" y="53" fill="#17325d" font-family="Georgia,serif" font-size="41" font-weight="700" letter-spacing="-1.7">Trussline</text>
-  <text x="110" y="72" fill="#2474df" font-family="Arial,sans-serif" font-size="10" font-weight="800" letter-spacing="2.4">INTERNATIONAL</text>
-  <text x="110" y="98" fill="#667690" font-family="Arial,sans-serif" font-size="11" font-weight="700" letter-spacing="1.8">INTERACTIVE LEARNING</text>
+  <text x="108" y="53" fill="#0C1A2E" font-family="Fraunces, Georgia, serif" font-size="41" font-weight="400" letter-spacing="-1.7">Trussline</text>
+  <text x="110" y="76" fill="#1F44C9" font-family="'JetBrains Mono', Arial, sans-serif" font-size="10" font-weight="500" letter-spacing=".8">INTERACTIVE</text><text x="192" y="76" fill="#17A07A" font-family="'JetBrains Mono', Arial, sans-serif" font-size="10" font-weight="500" letter-spacing=".8">LEARNING</text>
 </svg>
