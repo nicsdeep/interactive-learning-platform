@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 390 120" role="img" aria-labelledby="title desc">
-  <title id="title">Trussline International Mastery Map logo</title><desc id="desc">A mastery map formed from connected learning milestones.</desc>
+  <title id="title">Trussline Interactive Learning logo</title><desc id="desc">A route of connected learning milestones.</desc>
   <g transform="translate(5 18)" fill="none" stroke-linecap="round" stroke-linejoin="round">
     <path d="M8 67 26 43l17 10 25-35" stroke="#17325d" stroke-width="6"/>
     <path d="M8 67h66" stroke="#d8e3f5" stroke-width="6"/>
@@ -9,6 +9,6 @@
     <circle cx="68" cy="18" r="8" fill="#17325d" stroke="white" stroke-width="3"/>
   </g>
   <text x="108" y="53" fill="#17325d" font-family="Georgia,serif" font-size="41" font-weight="700" letter-spacing="-1.7">Trussline</text>
-  <text x="110" y="72" fill="#2474df" font-family="Arial,sans-serif" font-size="10" font-weight="800" letter-spacing="2.4">INTERNATIONAL</text>
-  <text x="110" y="98" fill="#667690" font-family="Arial,sans-serif" font-size="11" font-weight="700" letter-spacing="1.8">INTERACTIVE LEARNING</text>
+  <text x="110" y="75" fill="#1F44C9" font-family="Arial,sans-serif" font-size="10" font-weight="800" letter-spacing="1.9">INTERACTIVE</text>
+  <text x="218" y="75" fill="#17A07A" font-family="Arial,sans-serif" font-size="10" font-weight="800" letter-spacing="1.9">LEARNING</text>
 </svg>
