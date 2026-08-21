@@ -13,4 +13,4 @@ Use the colour variants only on their intended background contrast. Light-surfac
 
 ## Runtime logo treatment
 
-The application uses the reusable `BrandLogo` component rather than a fixed image in navigational and footer surfaces. It inherits its treatment from the surrounding surface and updates when that surface changes. Add `data-logo-surface="light"` or `data-logo-surface="dark"` to an intentional surface for immediate, flicker-free contrast; the component also observes runtime class and style changes for dynamic surfaces.
+The reusable `BrandLogo` component renders one complete, draggable SVG image—not HTML text beside an icon. It chooses the appropriate source asset for its surrounding light, dark, or brand-blue surface and updates when that surface changes. The mark itself is not a navigation link. Add `data-logo-surface="light"`, `data-logo-surface="dark"`, or `data-logo-surface="blue"` to an intentional surface for immediate, flicker-free contrast; the component also observes runtime class, style, and theme changes.

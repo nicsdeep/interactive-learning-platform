@@ -211,27 +211,27 @@ export default function HomePage() {
 
   return <main className="home-refined">
     <header className="home-nav">
-      <Link href="/" className="home-brand" aria-label="Trussline Interactive Learning home"><BrandLogo /></Link>
+      <div className="home-brand"><BrandLogo /></div>
       <button className="home-menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? "Close navigation" : "Open navigation"} aria-expanded={menuOpen}>{menuOpen ? <X /> : <Menu />}</button>
       <nav className={menuOpen ? "is-open" : ""} aria-label="Primary navigation">
-        <Link href="/how-it-works"><Compass className="mobile-nav-icon" size={18} /><span>Our approach</span><ChevronDown size={14} /></Link>
-        <Link href="/curricula"><BookOpen className="mobile-nav-icon" size={18} /><span>Programs &amp; Subjects</span><ChevronDown size={14} /></Link>
-        <Link href="/how-it-works"><GraduationCap className="mobile-nav-icon" size={18} /><span>For Learners</span><ChevronDown size={14} /></Link>
-        <Link href="/schools"><School className="mobile-nav-icon" size={18} /><span>For Schools</span><ChevronDown size={14} /></Link>
-        <Link href="/families"><Library className="mobile-nav-icon" size={18} /><span>Resources</span><ChevronDown size={14} /></Link>
-        <Link href="/"><Info className="mobile-nav-icon" size={18} /><span>About Us</span><ChevronDown size={14} /></Link>
+        <Link href="/how-it-works"><Compass className="mobile-nav-icon" size={18} /><span>How it works</span><ChevronDown size={14} /></Link>
+        <Link href="/curricula"><BookOpen className="mobile-nav-icon" size={18} /><span>Curricula</span><ChevronDown size={14} /></Link>
+        <Link href="/learn"><GraduationCap className="mobile-nav-icon" size={18} /><span>For learners</span><ChevronDown size={14} /></Link>
+        <Link href="/schools"><School className="mobile-nav-icon" size={18} /><span>For schools</span><ChevronDown size={14} /></Link>
+        <Link href="/families"><Library className="mobile-nav-icon" size={18} /><span>For families</span><ChevronDown size={14} /></Link>
+        <Link href="/#site-footer"><Info className="mobile-nav-icon" size={18} /><span>About Trussline</span><ChevronDown size={14} /></Link>
       </nav>
       <div className="home-nav-actions"><button className="home-search" onClick={() => setSearchOpen(!searchOpen)}><Search size={18} /> <span>Search</span></button><button className="home-region-button" onClick={() => document.getElementById("region-selector")?.scrollIntoView({ behavior: "smooth" })}><Globe2 size={18} /> <span>Select region</span><ChevronDown size={15} /></button><Link href="/learn" className="home-primary">Join the waitlist <ArrowRight size={17} /></Link></div>
       {searchOpen && <div className="home-search-popover"><Search size={17} /><input autoFocus aria-label="Search Trussline" placeholder="Search Trussline" /><button onClick={() => setSearchOpen(false)} aria-label="Close search"><X size={16} /></button></div>}
     </header>
     <section className="home-hero">
-      <div className="home-copy"><p className="home-eyebrow"><Sparkles size={15} /> INTERACTIVE LEARNING, GLOBALLY</p><h1>Learning that<br />meets the world<br /><em>where it is.</em></h1><p>Trussline International transforms curriculum into active, adaptive learning—empowering every learner to grow with confidence and purpose.</p><div className="home-hero-actions"><Link href="/learn" className="home-primary">Join the waitlist <ArrowRight size={17} /></Link><Link href="/how-it-works" className="home-secondary">Explore our approach <ArrowRight size={16} /></Link></div></div>
+      <div className="home-copy"><p className="home-eyebrow"><Sparkles size={15} /> INTERACTIVE LEARNING, GLOBALLY</p><h1>Learning that<br />meets the world<br /><em>where it is.</em></h1><p>Trussline makes learning active, responsive, and grounded in the curriculum each learner knows—so they can build confidence through real understanding.</p><div className="home-hero-actions"><Link href="/learn" className="home-primary">Join the waitlist <ArrowRight size={17} /></Link><Link href="/how-it-works" className="home-secondary">Explore how it works <ArrowRight size={16} /></Link></div></div>
       <div className="world-globe" aria-label="A connected global learning network"><div className="globe-map" /><i className="globe-longitude one" /><i className="globe-longitude two" /><i className="globe-longitude three" /><i className="globe-latitude one" /><i className="globe-latitude two" /><i className="globe-latitude three" /><b className="globe-marker north" /><b className="globe-marker asia" /><b className="globe-marker oceania" /></div>
     </section>
     <section className="region-selector" id="region-selector" aria-labelledby="learning-region-title">
       <div className="region-overview">
         <span className="region-marker" aria-hidden="true"><MapPin size={20} /></span>
-        <div><p className="region-eyebrow">YOUR LEARNING REGION</p><h2 id="learning-region-title">Built around where you learn.</h2><p>Your device time zone helps us prepare a learning route that feels local from the start.</p></div>
+        <div><p className="region-eyebrow">YOUR LEARNING REGION</p><h2 id="learning-region-title">Built around where you learn.</h2><p>Your device settings help us begin with the right local context. You can change it at any time.</p></div>
       </div>
       <div className="region-current">
         <div className="region-timezone">
@@ -246,6 +246,6 @@ export default function HomePage() {
       </div>
       <div className="region-note"><CheckCircle2 size={17} /><p>Your learning region helps tailor what you see first. You can change it any time.</p></div>
     </section>
-    <section className="home-context"><p>THE TRUSSLINE ROUTE</p><div><span>Kenya CBE/CBC</span><span>USA standards</span><span>England National Curriculum</span><span>Interactive mastery</span><span>Curriculum intelligence</span></div></section>
+    <section className="home-context"><p>BUILT FOR LOCAL CURRICULA</p><div><span>Kenya CBE/CBC</span><span>USA standards</span><span>England National Curriculum</span><span>Understanding that lasts</span><span>Curriculum intelligence</span></div></section>
   </main>;
 }
