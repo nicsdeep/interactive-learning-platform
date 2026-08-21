@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
 
-type AudiencePageProps = { eyebrow: string; title: React.ReactNode; lead: string; proof: string; panels: { title: string; text: string }[]; principles: string[]; closing: string };
+type AudiencePageProps = { eyebrow: string; title: React.ReactNode; lead: string; proof: string; panels: { title: string; text: string }[]; principles: string[]; closing: React.ReactNode };
 
 export default function AudiencePage({ eyebrow, title, lead, proof, panels, principles, closing }: AudiencePageProps) {
   return <main className="audience-page">
