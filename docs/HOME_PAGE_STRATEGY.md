@@ -48,10 +48,11 @@ The Home page must never hard-code a country as its default. Its learning-region
 
 - Resolve the device time zone and locale in the browser as an immediate fallback.
 - Use Vercel country and city headers through the same-origin `/api/location` route only when device settings cannot suggest a region.
-- A learner's manual region choice takes precedence for the current visit. Do not persist coordinates, city, or IP-derived location.
+- Keep the resolved country and continent in browser session memory for curriculum routing; a learner's manual choice takes precedence. Do not persist coordinates, city, or IP-derived location.
 - If automatic detection is unavailable, keep a neutral, searchable country selector rather than selecting an arbitrary country.
 - Country selection must support all ISO countries and show an image-backed flag with a Unicode fallback.
-- Use human language such as “Using your device settings” or “Your learning region is ready”; a learner can change it at any time.
+- Never label an inferred region with technical network language; a learner can change their region through the controls at any time.
+- Do not expose detection mechanics in the learner-facing card. Show a centered local-time display instead; the system keeps the regional context quietly in session memory.
 
 ## Implementation order
 

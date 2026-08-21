@@ -2,17 +2,19 @@
 
 import Link from "next/link";
 import BrandLogo from "./brand-logo";
-import { ArrowRight, BookOpen, CheckCircle2, ChevronDown, Clock3, Compass, Globe2, GraduationCap, Info, Library, MapPin, Menu, RefreshCw, School, Search, Sparkles, X } from "lucide-react";
+import { ArrowRight, BookOpen, CheckCircle2, ChevronDown, Clock3, Compass, Globe2, GraduationCap, Info, Library, MapPin, Menu, School, Search, Sparkles, X } from "lucide-react";
 import { countries, getEmojiFlag, type TCountryCode } from "countries-list";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
-type LocationSource = "detecting" | "device" | "network" | "manual" | "unavailable";
-
 type LocationResponse = {
-  city?: string;
-  continentCode?: string;
   countryCode?: string;
-  timezone?: string;
+};
+
+type RememberedRegion = {
+  country: string;
+  continent: string;
+  manual: boolean;
+  timeZone: string;
 };
 
 const continents = [
@@ -56,13 +58,7 @@ const timezoneCountries: Record<string, string> = {
   "Pacific/Auckland": "NZ",
 };
 
-const sourceCopy: Record<LocationSource, string> = {
-  detecting: "Setting your learning region",
-  device: "Using your device settings",
-  network: "Your learning region is ready",
-  manual: "Your selected learning region",
-  unavailable: "Choose your learning region",
-};
+const regionMemoryKey = "trussline.learning-region.v1";
 
 function validCountryCode(code?: string | null) {
   const normalized = code?.toUpperCase();
@@ -89,10 +85,29 @@ function deviceTimeZone() {
 function localTimeLabel(timeZone: string) {
   if (!timeZone) return "Setting your local time";
   try {
-    return new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit", timeZone, timeZoneName: "short" }).format(new Date());
+    return new Intl.DateTimeFormat(undefined, { hour: "numeric", minute: "2-digit", timeZone }).format(new Date());
   } catch {
     return timeZone.replaceAll("_", " ");
   }
+}
+
+function rememberedRegion(timeZone: string): RememberedRegion | undefined {
+  if (typeof window === "undefined") return undefined;
+  try {
+    const stored = JSON.parse(window.sessionStorage.getItem(regionMemoryKey) ?? "") as RememberedRegion;
+    const country = validCountryCode(stored.country);
+    return country && (stored.manual || stored.timeZone === timeZone) ? { ...stored, country } : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function rememberRegion(country: string, continent: string, manual: boolean) {
+  if (typeof window === "undefined") return;
+  const region: RememberedRegion = { country, continent, manual, timeZone: deviceTimeZone() };
+  try {
+    window.sessionStorage.setItem(regionMemoryKey, JSON.stringify(region));
+  } catch {}
 }
 
 function countryFlag(code: string) {
@@ -110,14 +125,11 @@ export default function HomePage() {
   const [countrySearch, setCountrySearch] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [locationSource, setLocationSource] = useState<LocationSource>("detecting");
-  const [locationCity, setLocationCity] = useState("");
   const [timeZone, setTimeZone] = useState("");
   const [localTime, setLocalTime] = useState("");
-  const [checkingLocation, setCheckingLocation] = useState(false);
   const manualSelectionRef = useRef(false);
 
-  const applyDetectedCountry = useCallback((code: string | undefined | null, source: "device" | "network", city = "") => {
+  const applyDetectedCountry = useCallback((code: string | undefined | null, manual = false) => {
     const normalized = validCountryCode(code);
     const match = normalized ? countryData.find((item) => item.code === normalized) : undefined;
     if (!match || manualSelectionRef.current) return false;
@@ -125,42 +137,29 @@ export default function HomePage() {
     setContinent(match.continent);
     setCountrySearch("");
     setCountryOpen(false);
-    setLocationSource(source);
-    if (city) setLocationCity(city);
+    rememberRegion(match.code, match.continent, manual);
     return true;
   }, []);
 
   const detectLocation = useCallback(async () => {
     if (manualSelectionRef.current) return;
-    setCheckingLocation(true);
     try {
       const response = await fetch("/api/location", { cache: "no-store" });
       if (!response.ok) throw new Error("Location unavailable");
       const data = await response.json() as LocationResponse;
-      if (!applyDetectedCountry(data.countryCode, "network", data.city)) {
-        setLocationSource((current) => current === "detecting" ? "unavailable" : current);
-      }
-    } catch {
-      setLocationSource((current) => current === "detecting" ? "unavailable" : current);
-    } finally {
-      setCheckingLocation(false);
-    }
+      applyDetectedCountry(data.countryCode);
+    } catch {}
   }, [applyDetectedCountry]);
 
   const syncDeviceContext = useCallback(() => {
     manualSelectionRef.current = false;
-    setCheckingLocation(true);
-    setLocationCity("");
-    setLocationSource("detecting");
     const nextTimeZone = deviceTimeZone();
     setTimeZone(nextTimeZone);
     setLocalTime(localTimeLabel(nextTimeZone));
-    const deviceCountry = timezoneCountries[nextTimeZone] ?? countryFromDeviceLocale();
-    const hasDeviceRegion = applyDetectedCountry(deviceCountry, "device");
-    if (hasDeviceRegion) {
-      setCheckingLocation(false);
-      return;
-    }
+    const savedRegion = rememberedRegion(nextTimeZone);
+    const deviceCountry = savedRegion?.country ?? timezoneCountries[nextTimeZone] ?? countryFromDeviceLocale();
+    const hasDeviceRegion = applyDetectedCountry(deviceCountry, savedRegion?.manual);
+    if (hasDeviceRegion) return;
     void detectLocation();
   }, [applyDetectedCountry, detectLocation]);
 
@@ -180,7 +179,6 @@ export default function HomePage() {
   }, [syncDeviceContext]);
 
   const availableCountries = useMemo(() => countryData.filter((item) => !continent || item.continent === continent), [continent]);
-  const selectedContinent = continents.find((item) => item.code === continent)?.name ?? "International";
   const selectedCountry = countryData.find((item) => item.code === country)?.name ?? "Finding your country";
   const matchingCountries = useMemo(() => {
     const query = countrySearch.trim().toLowerCase();
@@ -195,8 +193,7 @@ export default function HomePage() {
     setCountry(firstCountry?.code ?? "");
     setCountrySearch("");
     setCountryOpen(false);
-    setLocationCity("");
-    setLocationSource("manual");
+    if (firstCountry) rememberRegion(firstCountry.code, firstCountry.continent, true);
   };
 
   const chooseCountry = (code: string) => {
@@ -207,11 +204,9 @@ export default function HomePage() {
     setContinent(nextCountry.continent);
     setCountrySearch("");
     setCountryOpen(false);
-    setLocationCity("");
-    setLocationSource("manual");
+    rememberRegion(nextCountry.code, nextCountry.continent, true);
   };
 
-  const locationName = locationCity && country ? `${locationCity}, ${selectedCountry}` : selectedCountry;
   const displayLocalTime = localTime || localTimeLabel(timeZone);
 
   return <main className="home-refined">
@@ -238,10 +233,12 @@ export default function HomePage() {
         <span className="region-marker" aria-hidden="true"><MapPin size={20} /></span>
         <div><p className="region-eyebrow">YOUR LEARNING REGION</p><h2 id="learning-region-title">Built around where you learn.</h2><p>Your device time zone helps us prepare a learning route that feels local from the start.</p></div>
       </div>
-      <div className="region-current" aria-live="polite">
-        <span className={`region-source is-${locationSource}`}><i />{sourceCopy[locationSource]}</span>
-        <div className="region-current-place"><CountryFlag code={country || undefined} className="country-flag" /><div><strong>{locationName}</strong><small>{selectedContinent} learning context</small></div><button className="region-refresh" type="button" onClick={syncDeviceContext} disabled={checkingLocation} aria-label="Update learning region"><RefreshCw size={15} className={checkingLocation ? "is-spinning" : ""} /><span>Update</span></button></div>
-        <div className="region-timezone"><Clock3 size={15} /><span>Your local time</span><strong>{displayLocalTime}</strong></div>
+      <div className="region-current">
+        <div className="region-timezone">
+          <Clock3 size={20} aria-hidden="true" />
+          <span>Local time</span>
+          <time>{displayLocalTime}</time>
+        </div>
       </div>
       <div className="region-controls">
         <label><span>CONTINENT</span><select value={continent} onChange={(event) => chooseContinent(event.target.value)} aria-label="Select continent"><option value="" disabled>Choose a continent</option>{continents.map((item) => <option key={item.code} value={item.code}>{item.name}</option>)}</select></label>
