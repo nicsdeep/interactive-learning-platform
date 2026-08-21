@@ -1,41 +1,46 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { ArrowRight, ChevronDown, Clock3, Globe2, Sparkles } from "lucide-react";
+import Link from "next/link";
+import { ArrowRight, ChevronDown, Globe2, Menu, Search, Sparkles, X } from "lucide-react";
+import { countries } from "countries-list";
+import { useMemo, useState } from "react";
 
-const regions = ["🇿🇦 Africa", "🇺🇸 North America", "🇧🇷 Latin America", "🇬🇧 Europe", "🇦🇪 Middle East", "🇮🇳 South Asia", "🇸🇬 Southeast Asia", "🇦🇺 Oceania"];
-const Logo = () => <img src="/logo.svg" alt="Trussline International — Interactive Learning" />;
+const continents = [{ code: "AF", name: "Africa" }, { code: "AS", name: "Asia" }, { code: "EU", name: "Europe" }, { code: "NA", name: "North America" }, { code: "SA", name: "South America" }, { code: "OC", name: "Oceania" }, { code: "AN", name: "Antarctica" }];
+const flag = (code: string) => String.fromCodePoint(...code.split("").map((letter) => 127397 + letter.charCodeAt(0)));
+const countryData = Object.entries(countries).map(([code, country]) => ({ code, name: country.name, continent: country.continent })).sort((a, b) => a.name.localeCompare(b.name));
+const logo = <img src="/logo.svg" alt="Trussline International — Interactive Learning" />;
 
 export default function HomePage() {
-  const [open, setOpen] = useState(false);
-  const [region, setRegion] = useState(regions[0]);
-  const [seconds, setSeconds] = useState(32745);
-  useEffect(() => { const tick = window.setInterval(() => setSeconds((value) => (value ? value - 1 : 86399)), 1000); return () => window.clearInterval(tick); }, []);
-  const countdown = [Math.floor(seconds / 3600), Math.floor((seconds % 3600) / 60), seconds % 60].map((value) => String(value).padStart(2, "0")).join(":");
+  const [continent, setContinent] = useState("AF");
+  const [country, setCountry] = useState("ZA");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const availableCountries = useMemo(() => countryData.filter((item) => item.continent === continent), [continent]);
+  const selectedContinent = continents.find((item) => item.code === continent)?.name ?? "Africa";
+  const selectedCountry = countryData.find((item) => item.code === country)?.name ?? "South Africa";
 
-  return <main className="truss-home">
-    <header className="truss-nav">
-      <a href="/" className="truss-brand" aria-label="Trussline International home"><Logo /></a>
-      <nav>
-        <a href="#mission">Our approach</a>
-        <div className="truss-menu" onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
-          <button aria-expanded={open}>Explore <ChevronDown size={14} /></button>
-          {open && <div><a href="/curricula"><b>Curriculum intelligence</b><span>One engine, many learning systems</span></a><a href="/how-it-works"><b>How learning adapts</b><span>From evidence to the next step</span></a><a href="/families"><b>For families</b><span>Clarity around learner growth</span></a></div>}
-        </div>
-        <a href="/schools">For schools</a><a href="#global">Global learning</a>
+  const chooseContinent = (code: string) => { setContinent(code); setCountry(countryData.find((item) => item.continent === code)?.code ?? "AQ"); };
+  return <main className="home-refined">
+    <header className="home-nav">
+      <Link href="/" className="home-brand" aria-label="Trussline International home">{logo}</Link>
+      <button className="home-menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label="Open navigation">{menuOpen ? <X /> : <Menu />}</button>
+      <nav className={menuOpen ? "is-open" : ""}>
+        <Link href="/how-it-works">Our approach <ChevronDown size={14} /></Link>
+        <Link href="/curricula">Programs &amp; Subjects <ChevronDown size={14} /></Link>
+        <Link href="/how-it-works">For Learners <ChevronDown size={14} /></Link>
+        <Link href="/schools">For Schools <ChevronDown size={14} /></Link>
+        <Link href="/families">Resources <ChevronDown size={14} /></Link>
+        <Link href="/">About Us <ChevronDown size={14} /></Link>
       </nav>
-      <a className="truss-nav-cta" href="/learn">Join the waitlist <ArrowRight size={15} /></a>
+      <div className="home-nav-actions"><button className="home-search" onClick={() => setSearchOpen(!searchOpen)}><Search size={18} /> <span>Search</span></button><button className="home-region-button" onClick={() => document.getElementById("region-selector")?.scrollIntoView({ behavior: "smooth" })}><Globe2 size={18} /> <span>Select region</span><ChevronDown size={15} /></button><Link href="/learn" className="home-primary">Join the waitlist <ArrowRight size={17} /></Link></div>
+      {searchOpen && <div className="home-search-popover"><Search size={17} /><input autoFocus aria-label="Search Trussline" placeholder="Search Trussline" /><button onClick={() => setSearchOpen(false)} aria-label="Close search"><X size={16} /></button></div>}
     </header>
-    <section className="truss-hero" id="mission">
-      <p className="truss-kicker"><Sparkles size={14} /> Interactive learning, internationally</p><h1>Learning that meets<br />the world <em>where it is.</em></h1>
-      <p className="truss-lead">Trussline International turns curriculum into active, adaptive learning—giving every learner a clear route from curiosity to understanding.</p>
-      <div className="truss-actions"><a href="/learn">Join the waitlist <ArrowRight size={17} /></a><a href="#how">Discover the model</a></div>
-      <div className="truss-region"><Globe2 size={18} /><div><small>Select your region</small><select value={region} onChange={(event) => setRegion(event.target.value)} aria-label="Select your region">{regions.map((item) => <option key={item}>{item}</option>)}</select></div><span>We are building a global platform, one meaningful learning route at a time.</span></div>
-      <div className="truss-globe" aria-hidden="true"><i className="longitude l-one" /><i className="longitude l-two" /><i className="latitude t-one" /><i className="latitude t-two" /><b className="marker m-one" /><b className="marker m-two" /><b className="marker m-three" /></div>
+    <section className="home-hero">
+      <div className="home-copy"><p className="home-eyebrow"><Sparkles size={15} /> INTERACTIVE LEARNING, GLOBALLY</p><h1>Learning that<br />meets the world<br /><em>where it is.</em></h1><p>Trussline International transforms curriculum into active, adaptive learning—empowering every learner to grow with confidence and purpose.</p><div className="home-hero-actions"><Link href="/learn" className="home-primary">Join the waitlist <ArrowRight size={17} /></Link><Link href="/how-it-works" className="home-secondary">Explore our approach <ArrowRight size={16} /></Link></div></div>
+      <div className="world-globe" aria-label="A connected global learning network"><div className="globe-map" /><i className="globe-longitude one" /><i className="globe-longitude two" /><i className="globe-longitude three" /><i className="globe-latitude one" /><i className="globe-latitude two" /><i className="globe-latitude three" /><b className="globe-marker north" /><b className="globe-marker asia" /><b className="globe-marker oceania" /></div>
     </section>
-    <section className="truss-proof" id="how"><p>THE TRUSSLINE MODEL</p><h2>Not content pushed at a learner.<br /><em>A learning system that pays attention.</em></h2><div className="proof-grid"><article><span>01</span><h3>Understand the route</h3><p>Curriculum goals, skills, and learning outcomes become a meaningful map—not a list of lessons.</p></article><article><span>02</span><h3>Learn by doing</h3><p>Interactive experiences invite learners to explore, solve, explain, and create.</p></article><article><span>03</span><h3>Respond to evidence</h3><p>The next challenge changes with what a learner demonstrates, not simply what they complete.</p></article></div></section>
-    <section className="truss-global" id="global"><div><p>BUILT FOR A MOVING WORLD</p><h2>One learner.<br />A continuous journey.</h2></div><p>Whether a learner changes country, school, or curriculum, Trussline is designed to understand what they know and make the next move feel possible.</p><a href="/learn">Be first to know <ArrowRight size={16} /></a></section>
-    <section className="truss-countdown"><Clock3 size={18} /><span>Our next platform preview opens in</span><strong>{countdown}</strong><a href="/learn">Join the waitlist <ArrowRight size={15} /></a></section>
-    <footer className="truss-footer"><a href="/" className="truss-brand" aria-label="Trussline International home"><Logo /></a><p>Interactive learning for an interconnected world.</p><div><a href="/curricula">Curriculum intelligence</a><a href="/how-it-works">How it works</a><a href="/families">Families</a><a href="/schools">Schools</a></div><small>© 2026 Trussline International. All rights reserved.</small></footer>
+    <section className="region-selector" id="region-selector">
+      <Globe2 className="region-icon" size={27} /><label><span>SELECT CONTINENT</span><select value={continent} onChange={(event) => chooseContinent(event.target.value)} aria-label="Select continent">{continents.map((item) => <option key={item.code} value={item.code}>{item.name}</option>)}</select></label><label><span>SELECT COUNTRY</span><select value={country} onChange={(event) => setCountry(event.target.value)} aria-label="Select country">{availableCountries.map((item) => <option key={item.code} value={item.code}>{flag(item.code)} {item.name}</option>)}</select></label><div className="region-message"><Globe2 size={29} /><p>We are building a global platform,<br />one meaningful learning route at a time.</p><small>{selectedContinent} · {flag(country)} {selectedCountry}</small></div></section>
+    <section className="home-context"><p>BUILT FOR INTERNATIONAL LEARNING CONTEXTS</p><div><span>Kenya CBE/CBC</span><span>USA standards</span><span>England National Curriculum</span><span>Interactive mastery</span><span>Curriculum intelligence</span></div></section>
   </main>;
 }
