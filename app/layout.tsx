@@ -10,6 +10,7 @@ import "./audience.css";
 import "./trussline-theme.css";
 import "./home-refined.css";
 import "./site-footer.css";
+import "./brand-logo.css";
 
 const display = Fraunces({ weight: "400", style: ["normal", "italic"], subsets: ["latin"], variable: "--font-display" });
 const sans = Inter({ weight: ["400", "500"], subsets: ["latin"], variable: "--font-sans" });

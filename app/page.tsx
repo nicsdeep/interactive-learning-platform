@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import BrandLogo from "./brand-logo";
 import { ArrowRight, BookOpen, ChevronDown, Compass, Globe2, GraduationCap, Info, Library, Menu, Search, School, Sparkles, X } from "lucide-react";
 import { countries } from "countries-list";
 import { useMemo, useState } from "react";
 
 const continents = [{ code: "AF", name: "Africa" }, { code: "AS", name: "Asia" }, { code: "EU", name: "Europe" }, { code: "NA", name: "North America" }, { code: "SA", name: "South America" }, { code: "OC", name: "Oceania" }, { code: "AN", name: "Antarctica" }];
 const countryData = Object.entries(countries).map(([code, country]) => ({ code, name: country.name, continent: country.continent })).sort((a, b) => a.name.localeCompare(b.name));
-const logo = <img src="/logo.svg" alt="Trussline International — Interactive Learning" />;
+const logo = <BrandLogo />;
 
 export default function HomePage() {
   const [continent, setContinent] = useState("AF");

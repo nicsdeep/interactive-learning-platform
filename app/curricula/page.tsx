@@ -1,4 +1,5 @@
 import Link from "next/link";
+import BrandLogo from "../brand-logo";
 import { ArrowRight, Layers3, Route, ShieldCheck } from "lucide-react";
 
 const layers = [
@@ -9,7 +10,7 @@ const layers = [
 
 export default function CurriculaPage() {
   return <main className="curricula-page">
-    <header className="curricula-nav"><Link href="/" className="curricula-brand"><img src="/logo.svg" alt="Trussline International — Interactive Learning" /></Link><Link href="/how-it-works">See the learning engine <ArrowRight size={15} /></Link></header>
+    <header className="curricula-nav"><Link href="/" className="curricula-brand"><BrandLogo /></Link><Link href="/how-it-works">See the learning engine <ArrowRight size={15} /></Link></header>
     <section className="curricula-hero"><p><Layers3 size={15} /> CURRICULUM INTELLIGENCE</p><h1>One learning engine.<br /><em>Many curriculum realities.</em></h1><span>Trussline is designed for international learning without flattening the systems learners, families, and teachers already know.</span></section>
     <section className="curricula-principle"><Route size={21} /><div><p>THE ARCHITECTURE PROMISE</p><h2>Change the curriculum layer—not the core learning contract.</h2><span>Every learner experience can be shaped by the right framework, level, outcome, skills, context, and assessment evidence. The engine still knows how to create an interactive challenge, observe learning, and recommend a meaningful next step.</span></div></section>
     <section className="curriculum-layers" aria-label="Curriculum layers">{layers.map((layer) => <article key={layer.name}><b>{layer.number}</b><span>{layer.label}</span><h2>{layer.name}</h2><p>{layer.text}</p><small>{layer.number === "01" ? "IMPLEMENTATION FOCUS" : "FOUNDATION IN PLACE"}</small></article>)}</section>

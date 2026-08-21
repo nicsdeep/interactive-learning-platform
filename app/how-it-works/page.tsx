@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import BrandLogo from "../brand-logo";
 import { ArrowRight, Check, ChevronLeft, CirclePlay, Compass, Lightbulb, Sparkles } from "lucide-react";
 import { useState } from "react";
 
@@ -10,7 +11,7 @@ export default function HowItWorksPage() {
   const correct = answer.trim() === "4";
 
   return <main className="experience-page">
-    <header className="experience-nav"><Link href="/" className="experience-brand"><img src="/logo.svg" alt="Trussline International — Interactive Learning" /></Link><Link href="/" className="experience-back"><ChevronLeft size={15} /> Home</Link></header>
+    <header className="experience-nav"><Link href="/" className="experience-brand"><BrandLogo /></Link><Link href="/" className="experience-back"><ChevronLeft size={15} /> Home</Link></header>
     <section className="experience-intro"><p><Sparkles size={14} /> THE INTERACTIVE LEARNING ENGINE</p><h1>Learning changes<br />when the <em>next step</em> listens.</h1><span>Trussline translates curriculum goals into experiences that invite learners to reason, create evidence, and receive help that is relevant to the work in front of them.</span></section>
     <section className="experience-loop" aria-label="How the learning loop works">
       <article><b>01</b><Compass size={19} /><h2>Start with a purpose</h2><p>Each experience begins with a curriculum-aligned outcome and a challenge worth solving.</p></article>

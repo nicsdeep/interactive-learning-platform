@@ -1,9 +1,10 @@
 import Link from "next/link";
+import BrandLogo from "./brand-logo";
 
 export default function PublicPage({ eyebrow, title, copy, points }: { eyebrow: string; title: string; copy: string; points: string[] }) {
   return <main className="info-page">
     <header>
-      <Link href="/" className="global-logo" aria-label="Trussline International home"><img src="/logo.svg" alt="Trussline International — Interactive Learning" /></Link>
+      <Link href="/" className="global-logo" aria-label="Trussline Interactive home"><BrandLogo /></Link>
       <nav><Link href="/curricula">Curricula</Link><Link href="/how-it-works">How it works</Link><Link href="/families">Families</Link><Link href="/schools">Schools</Link></nav>
       <Link className="global-cta" href="/learn">Join the waitlist</Link>
     </header>
