@@ -13,7 +13,10 @@ export type BrandLogoCssVariables = CSSProperties & Record<`--${string}`, string
 
 function publicSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  // Supabase now issues publishable keys for browser-facing access. Keep the
+  // older anonymous-key name as a compatibility fallback for existing setups.
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+    ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
   return url && anonKey ? { url, anonKey } : undefined;
 }
 
