@@ -3,6 +3,7 @@ import type { CSSProperties } from "react";
 export const DEFAULT_LOGO_SCALE = 1.2;
 export const MIN_LOGO_SCALE = 0.8;
 export const MAX_LOGO_SCALE = 4;
+const MIN_RESPONSIVE_LOGO_PRESENCE = 0.78;
 
 export type BrandLogoCssVariables = CSSProperties & Record<`--${string}`, string>;
 
@@ -13,25 +14,25 @@ export function normalizeLogoScale(value: unknown) {
   return rounded >= MIN_LOGO_SCALE && rounded <= MAX_LOGO_SCALE ? rounded : undefined;
 }
 
-function pixels(value: number, scale: number) {
-  return `${Math.round(value * scale)}px`;
+/**
+ * A 4× lockup cannot physically fit inside a fixed phone header. Instead of
+ * letting an oversized SVG reflow the page, map the requested range onto the
+ * safe space each placement owns. Every value still produces a visible logo
+ * change, while navigation and footer geometry stay intact.
+ */
+export function getResponsiveLogoPresence(value: unknown) {
+  const scale = normalizeLogoScale(value) ?? DEFAULT_LOGO_SCALE;
+  const progress = (scale - MIN_LOGO_SCALE) / (MAX_LOGO_SCALE - MIN_LOGO_SCALE);
+  return MIN_RESPONSIVE_LOGO_PRESENCE + (1 - MIN_RESPONSIVE_LOGO_PRESENCE) * progress;
 }
 
 /**
- * Each public placement maps these requested values into its own responsive
- * display rail. That lets the artwork scale honestly while protected headers
- * and footers keep their layout geometry.
+ * Each public placement applies this percentage inside its own responsive
+ * display rail. The setting changes the SVG—not the dimensions of the page.
  */
 export function getBrandLogoCssVariables(logoScale: number): BrandLogoCssVariables {
-  const scale = normalizeLogoScale(logoScale) ?? DEFAULT_LOGO_SCALE;
+  const presence = getResponsiveLogoPresence(logoScale);
   return {
-    "--trussline-logo-home": pixels(190, scale),
-    "--trussline-logo-home-mobile": pixels(205, scale),
-    "--trussline-logo-launch": pixels(205, scale),
-    "--trussline-logo-launch-mobile": pixels(164, scale),
-    "--trussline-logo-info": pixels(205, scale),
-    "--trussline-logo-info-mobile": pixels(164, scale),
-    "--trussline-logo-footer": pixels(230, scale),
-    "--trussline-logo-footer-mobile": pixels(192, scale),
+    "--trussline-logo-presence": `${Math.round(presence * 10_000) / 100}%`,
   };
 }

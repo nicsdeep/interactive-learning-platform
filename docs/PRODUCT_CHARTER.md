@@ -34,7 +34,7 @@ The system models curriculum frameworks and versions, levels/grades, subjects, s
 3. Verify desktop and mobile layouts before each production deployment.
 4. Commit and push cohesive, tested milestones to `main`; Vercel then deploys them automatically.
 5. Preserve this charter as the decision reference for future work. A request that conflicts with it requires an explicit product decision, not a silent simplification.
-6. Any administrator-facing visual control must show its real rendering effect immediately while it is adjusted; autosave is never a substitute for live feedback. Structural surfaces such as headers and footers must remain stable while a truthful full-artwork preview communicates the complete range.
+6. Any administrator-facing visual control must show its real rendering effect immediately while it is adjusted; autosave is never a substitute for live feedback. Structural surfaces such as headers and footers must remain stable: a logo setting changes the logo inside its responsive rail, never the surrounding page dimensions.
 
 ## MVP definition
 

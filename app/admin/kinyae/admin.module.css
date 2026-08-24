@@ -319,6 +319,10 @@
   border: 1px solid var(--line);
   border-radius: 12px;
   background: var(--paper);
+  box-sizing: border-box;
+  inline-size: 100%;
+  min-inline-size: 0;
+  max-inline-size: 100%;
 }
 
 .scaleCanvasHeader {
@@ -346,7 +350,11 @@
   align-items: center;
   min-block-size: 110px;
   margin-top: 9px;
-  overflow-x: auto;
+  box-sizing: border-box;
+  inline-size: 100%;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  overflow: hidden;
   overflow-y: hidden;
   overscroll-behavior-x: contain;
   padding: 6px 0;
@@ -363,8 +371,9 @@
   display: flex;
   flex: 0 0 auto;
   align-items: center;
-  inline-size: var(--admin-full-preview-width);
-  min-inline-size: 128px;
+  inline-size: var(--admin-full-preview-presence);
+  min-inline-size: 0;
+  max-inline-size: 100%;
   transition: inline-size 180ms var(--ease);
 }
 
@@ -456,4 +465,23 @@
 .scaleQuickActions button:focus-visible {
   outline: 3px solid color-mix(in srgb, var(--blue) 24%, transparent);
   outline-offset: 2px;
+}
+
+/* A larger mark must never become a wider page. Grid items are explicitly
+   shrinkable, so the logo stays inside its own responsive preview frame. */
+.dashboardGrid {
+  grid-template-columns: minmax(0, .86fr) minmax(0, 1.14fr);
+  min-inline-size: 0;
+}
+
+.settingsPanel,
+.previewPanel {
+  min-inline-size: 0;
+}
+
+@media (max-width: 820px) {
+  .dashboardGrid,
+  .previewGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }

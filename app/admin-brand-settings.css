@@ -1,21 +1,21 @@
 /*
  * Global appearance tokens controlled by /admin/kinyae.
- * The values are generated server-side from a validated scale; each placement
- * retains its own responsive cap, so a larger brand mark never overlaps UI.
+ * The value is generated server-side from a validated scale and applied as a
+ * percentage of each placement's fixed logo rail—never as page geometry.
  */
 .home-brand img {
-  width: var(--trussline-logo-home) !important;
+  width: var(--trussline-logo-presence) !important;
   max-width: 22vw;
 }
 
 .coming-soon-brand img {
-  width: var(--trussline-logo-launch) !important;
+  width: var(--trussline-logo-presence) !important;
 }
 
 .audience-brand img,
 .curricula-brand img,
 .experience-brand img {
-  width: var(--trussline-logo-info) !important;
+  width: var(--trussline-logo-presence) !important;
 }
 
 /* `.global-logo span` predates the SVG lockup and otherwise makes it 30px. */
@@ -29,27 +29,27 @@
 }
 
 .info-page .global-logo .brand-logo img {
-  width: var(--trussline-logo-info) !important;
+  width: var(--trussline-logo-presence) !important;
   max-width: 52vw;
 }
 
 .site-footer-signature .brand-logo img {
-  width: min(var(--trussline-logo-footer), 22vw) !important;
+  width: var(--trussline-logo-presence) !important;
 }
 
 @media (max-width: 900px) {
   .home-brand img { max-width: 46vw; }
-  .site-footer-signature .brand-logo img { width: min(var(--trussline-logo-footer), 44vw) !important; }
+  .site-footer-signature .brand-logo img { width: var(--trussline-logo-presence) !important; }
 }
 
 @media (max-width: 540px) {
   .home-brand img {
-    width: var(--trussline-logo-home-mobile) !important;
+    width: var(--trussline-logo-presence) !important;
     max-width: 67vw;
   }
 
   .coming-soon-brand img {
-    width: var(--trussline-logo-launch-mobile) !important;
+    width: var(--trussline-logo-presence) !important;
     max-width: 57vw;
   }
 
@@ -57,12 +57,12 @@
   .curricula-brand img,
   .experience-brand img,
   .info-page .global-logo .brand-logo img {
-    width: var(--trussline-logo-info-mobile) !important;
+    width: var(--trussline-logo-presence) !important;
     max-width: 52vw;
   }
 
   .site-footer-signature .brand-logo img {
-    width: min(var(--trussline-logo-footer-mobile), 70vw) !important;
+    width: var(--trussline-logo-presence) !important;
   }
 }
 
@@ -107,7 +107,7 @@
 }
 
 .home-brand img {
-  width: min(var(--trussline-logo-home), 100%) !important;
+  width: var(--trussline-logo-presence) !important;
   max-inline-size: 100% !important;
   max-block-size: 100%;
   object-fit: contain;
@@ -136,7 +136,7 @@
 }
 
 .coming-soon-brand img {
-  width: min(var(--trussline-logo-launch), 100%) !important;
+  width: var(--trussline-logo-presence) !important;
   max-inline-size: 100% !important;
   max-block-size: 100%;
   object-fit: contain;
@@ -146,7 +146,7 @@
 .audience-brand img,
 .curricula-brand img,
 .experience-brand img {
-  width: min(var(--trussline-logo-info), 100%) !important;
+  width: var(--trussline-logo-presence) !important;
   max-inline-size: 100% !important;
   max-block-size: 100%;
   object-fit: contain;
@@ -159,7 +159,7 @@
 }
 
 .info-page .global-logo .brand-logo img {
-  width: min(var(--trussline-logo-info), 100%) !important;
+  width: var(--trussline-logo-presence) !important;
   max-inline-size: 100% !important;
   max-block-size: 100%;
   object-fit: contain;
@@ -173,7 +173,7 @@
 }
 
 .site-footer-signature .brand-logo img {
-  width: min(var(--trussline-logo-footer), 100%) !important;
+  width: var(--trussline-logo-presence) !important;
   max-inline-size: 100% !important;
   max-block-size: 100%;
   object-fit: contain;
@@ -206,14 +206,14 @@
   }
 
   .coming-soon-brand img {
-    width: min(var(--trussline-logo-launch-mobile), 100%) !important;
+    width: var(--trussline-logo-presence) !important;
   }
 
   .audience-brand img,
   .curricula-brand img,
   .experience-brand img,
   .info-page .global-logo .brand-logo img {
-    width: min(var(--trussline-logo-info-mobile), 100%) !important;
+    width: var(--trussline-logo-presence) !important;
   }
 
   .info-page .global-logo .brand-logo {
@@ -227,6 +227,6 @@
   }
 
   .site-footer-signature .brand-logo img {
-    width: min(var(--trussline-logo-footer-mobile), 100%) !important;
+    width: var(--trussline-logo-presence) !important;
   }
 }
