@@ -6,7 +6,14 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 function noStore(data: Record<string, unknown>, status = 200) {
-  return NextResponse.json(data, { status, headers: { "Cache-Control": "no-store" } });
+  return NextResponse.json(data, {
+    status,
+    headers: {
+      "Cache-Control": "no-store, private",
+      "X-Content-Type-Options": "nosniff",
+      "X-Robots-Tag": "noindex, nofollow",
+    },
+  });
 }
 
 async function requireAdmin() {

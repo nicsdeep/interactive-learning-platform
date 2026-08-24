@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import BrandLogo from "@/app/brand-logo";
 import { isAdminAuthenticated, isAdminConfigured } from "@/lib/admin-auth";
 import { getSiteBrandSettings, isSiteBrandPersistenceConfigured } from "@/lib/site-brand-settings";
@@ -6,6 +7,10 @@ import AdminLogin from "./admin-login";
 import setupStyles from "./admin-setup.module.css";
 
 export const dynamic = "force-dynamic";
+export const metadata: Metadata = {
+  title: "Administration | Trussline Interactive Learning",
+  robots: { index: false, follow: false, nocache: true },
+};
 
 export default async function KinyaeAdminPage() {
   const configured = isAdminConfigured();

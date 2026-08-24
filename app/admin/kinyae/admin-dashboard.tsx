@@ -14,6 +14,7 @@ import {
   Smartphone,
 } from "lucide-react";
 import BrandLogo from "../../brand-logo";
+import AdminFooter from "./admin-footer";
 import styles from "./admin.module.css";
 
 type AdminDashboardProps = {
@@ -243,6 +244,8 @@ export default function AdminDashboard({ initialLogoScale, persistenceConfigured
             </div>
           </section>
         </div>
+
+        <AdminFooter compact />
       </div>
     </main>
   );

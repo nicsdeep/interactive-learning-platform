@@ -2,7 +2,8 @@ import { createHmac, randomBytes, timingSafeEqual } from "node:crypto";
 import { cookies } from "next/headers";
 
 const ADMIN_COOKIE = "trussline_admin_session";
-const SESSION_TTL_MS = 1000 * 60 * 60 * 10;
+const SESSION_TTL_MS = 1000 * 60 * 60 * 8;
+export const MAX_ADMIN_PASSWORD_LENGTH = 512;
 
 type AdminSession = {
   issuedAt: number;
@@ -42,12 +43,17 @@ function decode(value: string, signingSecret: string): AdminSession | undefined 
 }
 
 export function isAdminConfigured() {
-  return Boolean(secret());
+  return Boolean(secret()?.length);
 }
 
 export function passwordMatches(candidate: string) {
   const configuredSecret = secret();
-  return Boolean(configuredSecret && candidate && equal(candidate, configuredSecret));
+  return Boolean(
+    configuredSecret
+    && candidate
+    && candidate.length <= MAX_ADMIN_PASSWORD_LENGTH
+    && equal(candidate, configuredSecret),
+  );
 }
 
 export function createAdminSessionValue() {
