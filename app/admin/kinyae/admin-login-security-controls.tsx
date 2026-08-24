@@ -92,9 +92,11 @@ export default function AdminLoginSecurityControls({
 
       <div className={styles.fieldSupport}>
         <p id={helpId} className={styles.helperText}>Your password stays private on this device.</p>
-        <p id={capsLockId} className={styles.capsLock} aria-live="polite" hidden={!capsLockOn}>
-          <span aria-hidden="true" />Caps Lock is on
-        </p>
+        {capsLockOn ? (
+          <p id={capsLockId} className={styles.capsLock} aria-live="polite">
+            <span aria-hidden="true" />Caps Lock is on
+          </p>
+        ) : null}
       </div>
 
       <details className={styles.guidance}>
@@ -119,7 +121,7 @@ export default function AdminLoginSecurityControls({
         </div>
         <div className={styles.recoveryActions}>
           <button type="button" onClick={() => requestRecovery("one-time-code")} disabled={!recoveryAvailable || !oneTimeCodeEnabled}>
-            Use a one-time code
+            Use secure email sign-in
           </button>
           <button type="button" onClick={() => requestRecovery("reset-password")} disabled={!recoveryAvailable || !passwordResetEnabled}>
             Reset password

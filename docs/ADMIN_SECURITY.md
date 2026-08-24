@@ -1,43 +1,56 @@
 # Trussline administration security
 
-## Current release
+## Current access model
 
-The first private control room uses a deployment-managed administrator password. The password is held only in Vercel's encrypted environment settings under `TRUSSLINE_ADMIN_PASSWORD`; it must never be committed, placed in Supabase data, or sent through chat.
+The private Trussline control room supports two deliberate ways to sign in:
 
-This release provides:
+- A deployment-managed administrator password held only in encrypted project settings.
+- A one-time email link sent only to the single verified administrator email held in encrypted project settings.
 
-- An HTTP-only, secure, `SameSite=Strict` administrator session cookie with an eight-hour maximum lifetime.
-- Timing-safe password comparison and same-origin checks for every administrative mutation.
-- Generic sign-in errors, password length limits, `no-store` responses, private-area security headers, and a short-burst sign-in throttle.
-- Keyboard-accessible show/hide password control, Caps Lock feedback, password-manager-compatible fields, and mobile-safe layout.
-- A reset guide that generates a strong password locally in the browser and explains the owner-controlled Vercel reset and redeploy process.
-- A separate, responsive administration footer rather than the public marketing footer.
+No password, email address, authentication token, or service credential belongs in source control, Supabase data, browser storage, or chat.
 
-The in-process throttle is an additional safeguard, not a substitute for Vercel WAF or a durable rate-limit service. Enable a project-level rate rule before broadening administrator access.
+## Protections in this release
 
-## Password reset today
+- HTTP-only, secure administrator session cookie with `SameSite=Strict` and an eight-hour maximum lifetime.
+- Timing-safe password comparison, generic sign-in failures, password-length limits, and same-origin checks on every administrative mutation.
+- Private-area security headers, `no-store` responses, and short-burst throttles for password, email-link, and verification-code attempts.
+- An encrypted, callback-only, 15-minute PKCE verifier cookie for email sign-in. The verifier is never readable by page JavaScript.
+- Server-side allowlisting: the email-link endpoint never accepts an email address from the browser, and the callback issues an administrator session only after the returned authenticated email exactly matches the protected configured address.
+- Single-use email links, a graceful expired-link message, and an optional code entry path when the mail template includes a code.
+- Keyboard-accessible show/hide password control, Caps Lock feedback that appears only when the browser reports it is on, password-manager-compatible fields, and mobile-safe layouts.
+
+The in-process throttle is an additional safeguard, not a substitute for a durable project-level rate limit or WAF when access is broadened beyond one administrator.
+
+## Required private configuration
+
+Configure these values only in the project’s encrypted environment settings:
+
+1. `TRUSSLINE_ADMIN_PASSWORD` — a unique administrator passphrase.
+2. `TRUSSLINE_ADMIN_OTP_EMAIL` — the single verified inbox permitted to receive email sign-in links.
+3. `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` — the project’s public Supabase connection values.
+
+In Supabase Authentication, set the live site URL and allowlist the exact production callback:
+
+`https://nick-interactive-learning.vercel.app/admin/kinyae/auth/callback`
+
+Keep email confirmation enabled. The verified administrator account is created only when that inbox itself requests and confirms its first secure link; no test email should be sent merely to configure this feature.
+
+## Password rotation
 
 1. Generate or choose a unique password of at least 14 characters and save it in an approved password manager.
-2. Update `TRUSSLINE_ADMIN_PASSWORD` in Vercel Project Settings → Environment Variables.
-3. Redeploy production.
-4. Sign in with the new password. The new deployment invalidates sessions signed with the previous password.
+2. Replace `TRUSSLINE_ADMIN_PASSWORD` in encrypted project settings.
+3. Publish the updated production build.
+4. Sign in with the replacement password. Existing sessions become invalid because their signatures are tied to the previous password.
 
-## Required path for passwordless access, reset email, and MFA
+## Future hardening
 
-One-time codes, magic links, self-service password reset, and MFA must use a named Supabase Auth administrator—not the shared deployment password. Do not enable a cosmetic OTP button before the following are complete:
-
-1. Create a verified Supabase Auth administrator and mark it with immutable `app_metadata.trussline_role = "admin"`.
-2. Use Supabase Auth email/password or passwordless email with `shouldCreateUser: false`; configure only exact production callback URLs and custom SMTP.
-3. Require TOTP MFA and AAL2 before reading or updating the control room.
-4. Change `site_brand_settings` updates to run under that verified user session. Record actor ID, authentication method, and AAL in the audit table.
-5. Remove the service-role update path from ordinary administrator requests and retire the shared deployment password after cutover.
-
-`profiles.role` and `user_metadata` must never grant administrative access. Authorization must rely on validated Supabase Auth claims stored in `app_metadata` and checked server-side.
+Before adding more administrators, move authorisation to named Supabase Auth users with immutable server-checked role claims, audit actor IDs and authentication methods, apply a durable distributed rate limiter, and require TOTP MFA for privileged actions. User-editable profile fields must never grant administration access.
 
 ## Verification checklist
 
-- A non-authenticated request cannot load or update the control room.
+- An unauthenticated request cannot load or update the control room.
 - A cross-site request cannot create or clear an administrator session.
-- Failed sign-ins are throttled without revealing whether a password is valid.
-- Password reset instructions never reveal a current secret.
-- Footer, password visibility, Caps Lock feedback, reset guidance, error states, and keyboard focus all work at 320px width.
+- Failed password and code entries are throttled without confirming whether an account is valid.
+- The email-link endpoint has no browser-controlled recipient field.
+- An expired or used email link returns the user to a clear recovery message.
+- The portrait, password controls, footer, focus states, and recovery paths remain usable at 320px width.

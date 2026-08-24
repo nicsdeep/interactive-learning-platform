@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import BrandLogo from "@/app/brand-logo";
-import { isAdminAuthenticated, isAdminConfigured } from "@/lib/admin-auth";
+import { getAdminAccessMethods, isAdminAuthenticated, isAdminConfigured } from "@/lib/admin-auth";
 import { getSiteBrandSettings, isSiteBrandPersistenceConfigured } from "@/lib/site-brand-settings";
 import AdminDashboard from "./admin-dashboard";
 import AdminLogin from "./admin-login";
@@ -22,13 +22,13 @@ export default async function KinyaeAdminPage() {
         <BrandLogo />
         <p className={setupStyles.eyebrow}>TRUSSLINE ADMINISTRATION</p>
         <h1 id="admin-setup-title">This private workspace is not configured yet.</h1>
-        <p>Add a fresh <code>TRUSSLINE_ADMIN_PASSWORD</code> in Vercel&apos;s encrypted project settings, then return here. It is never stored in the source code or browser.</p>
+        <p>Contact the Trussline platform owner to finish preparing this private workspace, then return here.</p>
       </section>
     </main>;
   }
 
   if (!authenticated) {
-    return <AdminLogin />;
+    return <AdminLogin emailLinkEnabled={getAdminAccessMethods().emailLinkEnabled} />;
   }
 
   const settings = await getSiteBrandSettings();

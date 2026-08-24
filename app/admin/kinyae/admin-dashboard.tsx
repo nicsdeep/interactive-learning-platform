@@ -187,7 +187,7 @@ export default function AdminDashboard({ initialLogoScale, persistenceConfigured
             {!persistenceConfigured ? (
               <div className={styles.setupNotice} role="status">
                 <CircleAlert size={18} aria-hidden="true" />
-                <p><strong>Saving is not configured yet.</strong> Add the secure server setting and apply the site-settings migration before publishing changes.</p>
+                <p><strong>Saving is being prepared.</strong> Your current logo remains unchanged. Contact the Trussline platform owner to enable publishing.</p>
               </div>
             ) : null}
 

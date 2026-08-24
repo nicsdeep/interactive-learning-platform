@@ -5,7 +5,6 @@ import {
   ArrowLeft,
   Check,
   Copy,
-  ExternalLink,
   KeyRound,
   LockKeyhole,
   RefreshCw,
@@ -78,12 +77,12 @@ export default function AdminPasswordResetGuide({ onReturn }: AdminPasswordReset
       <div className={styles.icon} aria-hidden="true"><KeyRound size={22} /></div>
       <p className={styles.eyebrow}>Account security</p>
       <h1 id="reset-password-title">Reset your administrator password.</h1>
-      <p className={styles.intro}>This password is kept in the project&apos;s encrypted deployment settings, not in the Trussline application. That keeps the reset under the project owner&apos;s control.</p>
+      <p className={styles.intro}>Your account is protected by an organisation-managed credential. These recovery steps help the account owner update it safely.</p>
 
       <div className={styles.generator}>
         <div>
           <p className={styles.generatorTitle}>Create a strong replacement</p>
-          <p>Generate a unique 22-character password locally on this device. It is never sent to Trussline.</p>
+          <p>Generate a unique 22-character password locally on this device. It never leaves this device.</p>
         </div>
         <button className={styles.generateButton} type="button" onClick={createPassword}>
           <RefreshCw size={16} aria-hidden="true" /> {password ? "Generate another" : "Generate password"}
@@ -102,23 +101,19 @@ export default function AdminPasswordResetGuide({ onReturn }: AdminPasswordReset
 
       <ol className={styles.steps}>
         <li><span>1</span><p>Keep the new password in an approved password manager.</p></li>
-        <li><span>2</span><p>In Vercel, update the encrypted <code>TRUSSLINE_ADMIN_PASSWORD</code> project setting.</p></li>
-        <li><span>3</span><p>Redeploy the project, then return here and sign in with the new password.</p></li>
+        <li><span>2</span><p>Use your organisation&apos;s protected administrator credential service to replace the current password.</p></li>
+        <li><span>3</span><p>When the security update is confirmed, return here and sign in with the new password.</p></li>
       </ol>
-
-      <a className={styles.vercelLink} href="https://vercel.com/dashboard" target="_blank" rel="noreferrer">
-        Open Vercel securely <ExternalLink size={15} aria-hidden="true" />
-      </a>
 
       <aside className={styles.otpNotice} aria-labelledby="one-time-code-title">
         <ShieldCheck size={19} aria-hidden="true" />
         <div>
-          <h2 id="one-time-code-title">One-time code sign-in</h2>
-          <p>It is intentionally unavailable until a verified, named administrator account and multi-factor protection are configured. A shared deployment password cannot issue a trustworthy one-time code by itself.</p>
+          <h2 id="one-time-code-title">One-time email sign-in</h2>
+          <p>Use the secure one-time link sent to your verified administrator email whenever you prefer not to use a password.</p>
         </div>
       </aside>
 
-      <p className={styles.sessionNote}><LockKeyhole size={14} aria-hidden="true" /> A password change invalidates existing administrator sessions after the new deployment is live.</p>
+      <p className={styles.sessionNote}><LockKeyhole size={14} aria-hidden="true" /> After an account password is updated, existing administrator sessions end when the security update is live.</p>
     </section>
   );
 }

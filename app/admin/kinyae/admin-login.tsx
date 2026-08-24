@@ -1,9 +1,11 @@
 "use client";
 
 import { FormEvent, useState } from "react";
-import { ArrowRight, LockKeyhole, ShieldCheck } from "lucide-react";
+import { useSearchParams } from "next/navigation";
+import { ArrowRight, LockKeyhole } from "lucide-react";
 import BrandLogo from "../../brand-logo";
 import AdminFooter from "./admin-footer";
+import AdminEmailSignIn from "./admin-email-sign-in";
 import AdminLoginSecurityControls, { type AdminRecoveryAction } from "./admin-login-security-controls";
 import AdminPasswordResetGuide from "./admin-password-reset-guide";
 import styles from "./admin.module.css";
@@ -12,13 +14,19 @@ type LoginResponse = {
   error?: string;
 };
 
-type LoginMode = "sign-in" | "reset-password";
+type LoginMode = "sign-in" | "email-sign-in" | "reset-password";
 
-export default function AdminLogin() {
+type AdminLoginProps = {
+  emailLinkEnabled: boolean;
+};
+
+export default function AdminLogin({ emailLinkEnabled }: AdminLoginProps) {
   const [password, setPassword] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [mode, setMode] = useState<LoginMode>("sign-in");
+  const searchParams = useSearchParams();
+  const emailLinkExpired = searchParams.get("email-link") === "expired";
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -49,6 +57,12 @@ export default function AdminLogin() {
   }
 
   function handleRecoveryAction(action: AdminRecoveryAction) {
+    if (action === "one-time-code" && emailLinkEnabled) {
+      setError("");
+      setMode("email-sign-in");
+      return;
+    }
+
     if (action === "reset-password") {
       setError("");
       setMode("reset-password");
@@ -70,10 +84,14 @@ export default function AdminLogin() {
 
         {mode === "sign-in" ? (
           <section className={styles.loginPanel} aria-labelledby="admin-access-title">
-            <div className={styles.loginIcon} aria-hidden="true"><ShieldCheck size={23} /></div>
-            <p className={styles.eyebrow}>Administration</p>
-            <h1 id="admin-access-title">Welcome back.</h1>
-            <p className={styles.loginCopy}>Enter the administrator password to manage the Trussline brand experience.</p>
+            <div className={styles.loginIdentity}>
+              <div className={styles.adminPortrait}>
+                <img src="/admin/nicsdavid-portrait.png" alt="Administrator portrait" draggable={false} />
+              </div>
+              <p className={styles.eyebrow}>Administration</p>
+              <h1 id="admin-access-title">Welcome back.</h1>
+              <p className={styles.loginCopy}>Sign in to manage the Trussline brand experience.</p>
+            </div>
 
             <form className={styles.loginForm} onSubmit={handleSubmit} noValidate>
               <AdminLoginSecurityControls
@@ -85,9 +103,13 @@ export default function AdminLogin() {
                 disabled={isSubmitting}
                 errorId={error ? "admin-login-error" : undefined}
                 onRecoveryAction={handleRecoveryAction}
+                oneTimeCodeEnabled={emailLinkEnabled}
                 passwordResetEnabled
-                recoveryMessage="One-time codes will be enabled only after a verified named administrator and multi-factor protection are configured. You can safely reset the deployment password now."
+                recoveryMessage={emailLinkEnabled
+                  ? "Use a one-time email link whenever you prefer not to enter a password. You can also reset your administrator password securely."
+                  : "You can reset your administrator password securely if you need help signing in."}
               />
+              {emailLinkExpired ? <p id="admin-email-link-error" className={styles.formError} role="alert">That secure email link has expired or was already used. Request another link to continue.</p> : null}
               {error ? <p id="admin-login-error" className={styles.formError} role="alert">{error}</p> : null}
               <button className={styles.primaryButton} type="submit" disabled={isSubmitting || password.length === 0}>
                 {isSubmitting ? "Checking access…" : "Open control room"}
@@ -95,6 +117,8 @@ export default function AdminLogin() {
               </button>
             </form>
           </section>
+        ) : mode === "email-sign-in" ? (
+          <AdminEmailSignIn onBack={() => setMode("sign-in")} />
         ) : (
           <AdminPasswordResetGuide onReturn={() => setMode("sign-in")} />
         )}
