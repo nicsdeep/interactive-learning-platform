@@ -41,12 +41,15 @@ function serverEnvironmentValue(name: string) {
 
 function supabaseAuthConfig() {
   const url = serverEnvironmentValue("NEXT_PUBLIC_SUPABASE_URL");
-  const anonKey = serverEnvironmentValue("NEXT_PUBLIC_SUPABASE_ANON_KEY");
-  if (!url || !anonKey) return undefined;
+  // Supabase's current project connection screen issues a publishable key.
+  // Retain the legacy anon-key fallback for projects that have not migrated.
+  const publicKey = serverEnvironmentValue("NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY")
+    ?? serverEnvironmentValue("NEXT_PUBLIC_SUPABASE_ANON_KEY");
+  if (!url || !publicKey) return undefined;
 
   try {
     new URL(url);
-    return { url, anonKey };
+    return { url, anonKey: publicKey };
   } catch {
     return undefined;
   }
@@ -86,23 +89,9 @@ export function isAdminConfigured() {
 
 /** Safe for server-rendered UI: it intentionally exposes no email address. */
 export function getAdminAccessMethods() {
-  const configuredEmail = configuredOtpEmail();
-  const supabaseUrl = serverEnvironmentValue("NEXT_PUBLIC_SUPABASE_URL");
-  const supabaseAnonKey = serverEnvironmentValue("NEXT_PUBLIC_SUPABASE_ANON_KEY");
-  const emailLinkEnabled = Boolean(isAdminConfigured() && configuredEmail && supabaseUrl && supabaseAnonKey);
-
-  // Temporary deployment diagnostic. It reports only booleans so private
-  // values never enter logs; remove after confirming production configuration.
-  console.info("[trussline-admin-auth] access readiness", {
-    password: isAdminConfigured(),
-    email: Boolean(configuredEmail),
-    supabaseUrl: Boolean(supabaseUrl),
-    supabaseAnonKey: Boolean(supabaseAnonKey),
-  });
-
   return {
     passwordEnabled: isAdminConfigured(),
-    emailLinkEnabled,
+    emailLinkEnabled: isAdminOtpConfigured(),
   } as const;
 }
 

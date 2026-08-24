@@ -27,7 +27,7 @@ Configure these values only in the project’s encrypted environment settings:
 
 1. `TRUSSLINE_ADMIN_PASSWORD` — a unique administrator passphrase.
 2. `TRUSSLINE_ADMIN_OTP_EMAIL` — the single verified inbox permitted to receive email sign-in links.
-3. `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` — the project’s public Supabase connection values.
+3. `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` — the project’s public Supabase connection values. A legacy `NEXT_PUBLIC_SUPABASE_ANON_KEY` remains supported when needed.
 
 In Supabase Authentication, set the live site URL and allowlist the exact production callback:
 
