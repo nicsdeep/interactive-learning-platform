@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter, JetBrains_Mono } from "next/font/google";
 import SiteFooter from "./site-footer";
+import BrandPreviewBridge from "./brand-preview-bridge";
 import { getBrandLogoCssVariables, getSiteBrandSettings } from "@/lib/site-brand-settings";
 import "./globals.css";
 import "./reference-theme.css";
@@ -30,6 +31,7 @@ export default async function RootLayout({ children }: Readonly<{ children: Reac
 
   return <html lang="en" data-logo-scale={brandSettings.logoScale.toFixed(2)} style={brandLogoVariables}>
     <body className={`${display.variable} ${sans.variable} ${code.variable}`}>
+      <BrandPreviewBridge />
       {children}
       <SiteFooter />
     </body>

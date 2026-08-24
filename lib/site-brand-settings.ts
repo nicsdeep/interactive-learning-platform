@@ -1,15 +1,18 @@
-import type { CSSProperties } from "react";
+import { DEFAULT_LOGO_SCALE, normalizeLogoScale } from "./brand-logo-scale";
 
-export const DEFAULT_LOGO_SCALE = 1.2;
-export const MIN_LOGO_SCALE = 0.8;
-export const MAX_LOGO_SCALE = 4;
+export {
+  DEFAULT_LOGO_SCALE,
+  MIN_LOGO_SCALE,
+  MAX_LOGO_SCALE,
+  normalizeLogoScale,
+  getBrandLogoCssVariables,
+} from "./brand-logo-scale";
+export type { BrandLogoCssVariables } from "./brand-logo-scale";
 
 export type SiteBrandSettings = {
   logoScale: number;
   source: "default" | "database";
 };
-
-export type BrandLogoCssVariables = CSSProperties & Record<`--${string}`, string>;
 
 function publicSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -28,13 +31,6 @@ function serviceSupabase() {
   const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim()
     || process.env.vercel_admin_settings_live?.trim();
   return publicConfig && serviceKey ? { ...publicConfig, serviceKey } : undefined;
-}
-
-export function normalizeLogoScale(value: unknown) {
-  const scale = typeof value === "number" ? value : Number(value);
-  if (!Number.isFinite(scale)) return undefined;
-  const rounded = Math.round(scale * 100) / 100;
-  return rounded >= MIN_LOGO_SCALE && rounded <= MAX_LOGO_SCALE ? rounded : undefined;
 }
 
 export function isSiteBrandPersistenceConfigured() {
@@ -88,28 +84,4 @@ export async function updateSiteBrandSettings(logoScale: number) {
   return persistedScale
     ? { ok: true as const, settings: { logoScale: persistedScale, source: "database" as const } }
     : { ok: false as const, reason: "write_failed" as const };
-}
-
-function pixels(value: number, scale: number) {
-  return `${Math.round(value * scale)}px`;
-}
-
-/**
- * These describe the requested artwork size. Each public placement then maps
- * that request into a responsive display rail. In particular, navigation and
- * footer rails never resize: the full SVG is contained inside them so a 400%
- * request cannot reflow the page or distort the mark on a phone.
- */
-export function getBrandLogoCssVariables(logoScale: number): BrandLogoCssVariables {
-  const scale = normalizeLogoScale(logoScale) ?? DEFAULT_LOGO_SCALE;
-  return {
-    "--trussline-logo-home": pixels(190, scale),
-    "--trussline-logo-home-mobile": pixels(205, scale),
-    "--trussline-logo-launch": pixels(205, scale),
-    "--trussline-logo-launch-mobile": pixels(164, scale),
-    "--trussline-logo-info": pixels(205, scale),
-    "--trussline-logo-info-mobile": pixels(164, scale),
-    "--trussline-logo-footer": pixels(230, scale),
-    "--trussline-logo-footer-mobile": pixels(192, scale),
-  };
 }

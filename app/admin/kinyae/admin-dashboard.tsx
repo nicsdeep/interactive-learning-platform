@@ -17,6 +17,8 @@ import {
 import BrandLogo from "../../brand-logo";
 import AdminFooter from "./admin-footer";
 import styles from "./admin.module.css";
+import { DEFAULT_LOGO_SCALE, MAX_LOGO_SCALE, MIN_LOGO_SCALE } from "@/lib/brand-logo-scale";
+import { applyLiveBrandPreview, BRAND_PREVIEW_CHANNEL, createBrandPreviewMessage } from "@/lib/live-brand-preview";
 
 type AdminDashboardProps = {
   initialLogoScale: number;
@@ -29,12 +31,10 @@ type SettingsPayload = {
   error?: string;
 };
 
-const MIN_LOGO_SCALE = 0.8;
-const MAX_LOGO_SCALE = 4;
-const DEFAULT_LOGO_SCALE = 1.2;
 const AUTO_SAVE_DELAY = 700;
 const DESKTOP_PREVIEW_RAIL = 258;
 const MOBILE_PREVIEW_RAIL = 154;
+const FULL_PREVIEW_BASE_WIDTH = 180;
 
 type SaveStatus = "idle" | "previewing" | "saving" | "saved" | "error" | "unavailable";
 
@@ -54,6 +54,10 @@ function previewStyle(requestedWidth: number, railWidth: number): CSSProperties 
   } as CSSProperties;
 }
 
+function fullPreviewStyle(width: number): CSSProperties {
+  return { "--admin-full-preview-width": `${width}px` } as CSSProperties;
+}
+
 export default function AdminDashboard({ initialLogoScale, persistenceConfigured }: AdminDashboardProps) {
   const [logoScale, setLogoScale] = useState(() => clampLogoScale(initialLogoScale));
   const [savedLogoScale, setSavedLogoScale] = useState(() => clampLogoScale(initialLogoScale));
@@ -62,6 +66,8 @@ export default function AdminDashboard({ initialLogoScale, persistenceConfigured
   const [saveStatus, setSaveStatus] = useState<SaveStatus>(persistenceConfigured ? "idle" : "unavailable");
   const [error, setError] = useState("");
   const latestLogoScale = useRef(clampLogoScale(initialLogoScale));
+  const savedLogoScaleRef = useRef(clampLogoScale(initialLogoScale));
+  const previewChannel = useRef<BroadcastChannel | null>(null);
   const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const pendingSave = useRef<number | null>(null);
   const saveInFlight = useRef(false);
@@ -71,6 +77,7 @@ export default function AdminDashboard({ initialLogoScale, persistenceConfigured
   const hasChanges = logoScale !== savedLogoScale;
   const desktopWidth = useMemo(() => Math.round(210 * logoScale), [logoScale]);
   const mobileWidth = useMemo(() => Math.round(144 * logoScale), [logoScale]);
+  const fullPreviewWidth = useMemo(() => Math.round(FULL_PREVIEW_BASE_WIDTH * logoScale), [logoScale]);
 
   const clearAutoSaveTimer = useCallback(() => {
     if (autoSaveTimer.current) {
@@ -157,6 +164,29 @@ export default function AdminDashboard({ initialLogoScale, persistenceConfigured
   }, [clearAutoSaveTimer]);
 
   useEffect(() => {
+    savedLogoScaleRef.current = savedLogoScale;
+  }, [savedLogoScale]);
+
+  useEffect(() => {
+    applyLiveBrandPreview(logoScale);
+  }, [logoScale]);
+
+  useEffect(() => {
+    if ("BroadcastChannel" in window) previewChannel.current = new BroadcastChannel(BRAND_PREVIEW_CHANNEL);
+
+    return () => {
+      // A preview that has not saved must not leak into another route or an
+      // open Trussline tab in the same browser session.
+      const confirmedScale = savedLogoScaleRef.current;
+      applyLiveBrandPreview(confirmedScale);
+      const confirmedMessage = createBrandPreviewMessage(confirmedScale);
+      if (confirmedMessage) previewChannel.current?.postMessage(confirmedMessage);
+      previewChannel.current?.close();
+      previewChannel.current = null;
+    };
+  }, []);
+
+  useEffect(() => {
     if (!persistenceConfigured) return;
     const controller = new AbortController();
 
@@ -183,6 +213,9 @@ export default function AdminDashboard({ initialLogoScale, persistenceConfigured
   function updateScale(nextValue: number) {
     const nextScale = clampLogoScale(nextValue);
     latestLogoScale.current = nextScale;
+    applyLiveBrandPreview(nextScale);
+    const previewMessage = createBrandPreviewMessage(nextScale);
+    if (previewMessage) previewChannel.current?.postMessage(previewMessage);
     setLogoScale(nextScale);
     setError("");
     scheduleAutoSave(nextScale);
@@ -290,6 +323,19 @@ export default function AdminDashboard({ initialLogoScale, persistenceConfigured
               </div>
               <span className={styles.previewStatus} data-state={saveStatus}><span aria-hidden="true" /> {saveStatus === "unavailable" ? "Preview mode" : saveStatus === "saving" || saveStatus === "previewing" ? "Updating" : "Live preview"}</span>
             </div>
+
+            <figure className={styles.scaleCanvas} aria-labelledby="live-scale-canvas-caption">
+              <div className={styles.scaleCanvasHeader}>
+                <span>Full-lockup preview</span>
+                <strong>{percentage}%</strong>
+              </div>
+              <div className={styles.scaleCanvasViewport}>
+                <div className={styles.scaleCanvasTrack} style={fullPreviewStyle(fullPreviewWidth)} data-logo-surface="light">
+                  <BrandLogo />
+                </div>
+              </div>
+              <figcaption id="live-scale-canvas-caption">This artwork responds immediately while you drag. On smaller screens, swipe this preview to inspect the full mark at larger sizes.</figcaption>
+            </figure>
 
             <div className={styles.previewGrid}>
               <article className={styles.desktopPreview} aria-label="Desktop logo preview">

@@ -24,6 +24,7 @@ Trussline International's mark communicates learning progress, curriculum struct
 ## Interface rules
 
 - Mobile is a first-class acceptance criterion for every change: no horizontal overflow, cropped content, overlapping controls, or unreadably small brand elements. Verify the 360px viewport before each production push.
+- Any visual control must update the relevant on-page preview on every input event, before autosave or a manual save. A percentage readout alone is never sufficient. Preview changes must use the same rendering variables as the live product; protected navigation and footer rails may stay structurally fixed, but the control must provide an immediate, truthful full-artwork preview at every allowed value.
 - Public headers remain sticky while scrolling. On mobile, navigation opens as a left-aligned panel below the header with clear touch targets.
 - Responsive from small phones through desktop; no desktop-only dashboard assumptions.
 - Use blue for navigation, progress, and primary action; preserve clear contrast and keyboard focus.

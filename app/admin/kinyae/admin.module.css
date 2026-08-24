@@ -312,3 +312,98 @@
     block-size: 36px;
   }
 }
+
+.scaleCanvas {
+  margin: 25px 0 0;
+  padding: 15px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--paper);
+}
+
+.scaleCanvasHeader {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.scaleCanvasHeader span {
+  color: var(--muted);
+  font: 500 10px/1.3 var(--font-code), monospace;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.scaleCanvasHeader strong {
+  color: var(--blue);
+  font: 500 16px/1 var(--font-code), monospace;
+  letter-spacing: -.05em;
+}
+
+.scaleCanvasViewport {
+  display: flex;
+  align-items: center;
+  min-block-size: 178px;
+  margin-top: 13px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-x: contain;
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--blue) 5%, transparent) 1px, transparent 1px) 0 0 / 24px 24px,
+    linear-gradient(color-mix(in srgb, var(--blue) 5%, transparent) 1px, transparent 1px) 0 0 / 24px 24px,
+    color-mix(in srgb, var(--surface) 72%, var(--blue-soft));
+  scrollbar-color: var(--blue) transparent;
+}
+
+.scaleCanvasTrack {
+  display: flex;
+  flex: 0 0 auto;
+  align-items: center;
+  inline-size: var(--admin-full-preview-width);
+  min-inline-size: 144px;
+  transition: inline-size 180ms var(--ease);
+}
+
+.scaleCanvasTrack :global(.brand-logo) {
+  display: flex;
+  inline-size: 100%;
+}
+
+.scaleCanvasTrack :global(.brand-logo img) {
+  display: block;
+  inline-size: 100% !important;
+  max-inline-size: none !important;
+  block-size: auto;
+}
+
+.scaleCanvas figcaption {
+  margin-top: 11px;
+  color: var(--slate);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+@media (max-width: 560px) {
+  .scaleCanvas {
+    margin-top: 21px;
+    padding: 13px;
+  }
+
+  .scaleCanvasViewport {
+    min-block-size: 176px;
+  }
+
+  .scaleCanvas figcaption {
+    font-size: 11px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scaleCanvasTrack {
+    transition: none;
+  }
+}
