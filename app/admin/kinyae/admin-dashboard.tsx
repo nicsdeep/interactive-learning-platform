@@ -34,7 +34,10 @@ type SettingsPayload = {
 const AUTO_SAVE_DELAY = 700;
 const DESKTOP_PREVIEW_RAIL = 258;
 const MOBILE_PREVIEW_RAIL = 154;
-const FULL_PREVIEW_BASE_WIDTH = 180;
+// This stage has its own generous canvas so it can show the requested size
+// literally; navigation and footer rails remain intentionally fixed.
+const FULL_PREVIEW_BASE_WIDTH = 160;
+const LOGO_SCALE_PRESETS = [0.8, 1.2, 2, 3, 4] as const;
 
 type SaveStatus = "idle" | "previewing" | "saving" | "saved" | "error" | "unavailable";
 
@@ -212,6 +215,9 @@ export default function AdminDashboard({ initialLogoScale, persistenceConfigured
 
   function updateScale(nextValue: number) {
     const nextScale = clampLogoScale(nextValue);
+    // Range inputs emit both input and change events in some browsers. Ignore
+    // the second event so one gesture produces one preview and one autosave.
+    if (nextScale === latestLogoScale.current) return;
     latestLogoScale.current = nextScale;
     applyLiveBrandPreview(nextScale);
     const previewMessage = createBrandPreviewMessage(nextScale);
@@ -276,6 +282,19 @@ export default function AdminDashboard({ initialLogoScale, persistenceConfigured
               <span>Requested display scale</span>
             </div>
 
+            <figure className={styles.scaleCanvas} aria-labelledby="live-scale-canvas-caption">
+              <div className={styles.scaleCanvasHeader}>
+                <span>Live logo preview</span>
+                <strong>{percentage}%</strong>
+              </div>
+              <div className={styles.scaleCanvasViewport}>
+                <div className={styles.scaleCanvasTrack} style={fullPreviewStyle(fullPreviewWidth)} data-logo-surface="light">
+                  <BrandLogo />
+                </div>
+              </div>
+              <figcaption id="live-scale-canvas-caption">This mark grows before anything is saved.</figcaption>
+            </figure>
+
             <fieldset className={styles.scaleFieldset}>
               <legend className="sr-only">Logo scale</legend>
               <label className={styles.rangeLabel} htmlFor="logo-scale">Logo size</label>
@@ -288,11 +307,23 @@ export default function AdminDashboard({ initialLogoScale, persistenceConfigured
                 step="0.02"
                 value={logoScale}
                 onInput={(event) => updateScale(Number(event.currentTarget.value))}
+                onChange={(event) => updateScale(Number(event.currentTarget.value))}
                 aria-valuetext={`${percentage} percent of the base logo size. Navigation and footer frames stay protected.`}
                 aria-describedby="logo-scale-status"
                 style={{ background: `linear-gradient(90deg, var(--blue) 0 ${((logoScale - MIN_LOGO_SCALE) / (MAX_LOGO_SCALE - MIN_LOGO_SCALE)) * 100}%, var(--blue-soft) ${((logoScale - MIN_LOGO_SCALE) / (MAX_LOGO_SCALE - MIN_LOGO_SCALE)) * 100}% 100%)` }}
               />
               <div className={styles.rangeLegend} aria-hidden="true"><span>Compact · 80%</span><span>Maximum presence · 400%</span></div>
+              <div className={styles.scaleQuickActions} role="group" aria-label="Choose an exact logo size">
+                {LOGO_SCALE_PRESETS.map((preset) => {
+                  const presetPercentage = Math.round(preset * 100);
+                  return <button
+                    key={preset}
+                    type="button"
+                    aria-pressed={logoScale === preset}
+                    onClick={() => updateScale(preset)}
+                  >{presetPercentage}%</button>;
+                })}
+              </div>
             </fieldset>
 
             <div id="logo-scale-status" className={styles.autosaveStatus} data-state={saveStatus} role={saveStatus === "error" ? "alert" : "status"} aria-live={saveStatus === "error" ? "assertive" : "polite"}>
@@ -323,19 +354,6 @@ export default function AdminDashboard({ initialLogoScale, persistenceConfigured
               </div>
               <span className={styles.previewStatus} data-state={saveStatus}><span aria-hidden="true" /> {saveStatus === "unavailable" ? "Preview mode" : saveStatus === "saving" || saveStatus === "previewing" ? "Updating" : "Live preview"}</span>
             </div>
-
-            <figure className={styles.scaleCanvas} aria-labelledby="live-scale-canvas-caption">
-              <div className={styles.scaleCanvasHeader}>
-                <span>Full-lockup preview</span>
-                <strong>{percentage}%</strong>
-              </div>
-              <div className={styles.scaleCanvasViewport}>
-                <div className={styles.scaleCanvasTrack} style={fullPreviewStyle(fullPreviewWidth)} data-logo-surface="light">
-                  <BrandLogo />
-                </div>
-              </div>
-              <figcaption id="live-scale-canvas-caption">This artwork responds immediately while you drag. On smaller screens, swipe this preview to inspect the full mark at larger sizes.</figcaption>
-            </figure>
 
             <div className={styles.previewGrid}>
               <article className={styles.desktopPreview} aria-label="Desktop logo preview">

@@ -314,8 +314,8 @@
 }
 
 .scaleCanvas {
-  margin: 25px 0 0;
-  padding: 15px;
+  margin: 18px 0 0;
+  padding: 12px;
   border: 1px solid var(--line);
   border-radius: 12px;
   background: var(--paper);
@@ -344,12 +344,12 @@
 .scaleCanvasViewport {
   display: flex;
   align-items: center;
-  min-block-size: 178px;
-  margin-top: 13px;
+  min-block-size: 110px;
+  margin-top: 9px;
   overflow-x: auto;
   overflow-y: hidden;
   overscroll-behavior-x: contain;
-  padding: 10px 0;
+  padding: 6px 0;
   border-top: 1px solid var(--line);
   border-bottom: 1px solid var(--line);
   background:
@@ -364,7 +364,7 @@
   flex: 0 0 auto;
   align-items: center;
   inline-size: var(--admin-full-preview-width);
-  min-inline-size: 144px;
+  min-inline-size: 128px;
   transition: inline-size 180ms var(--ease);
 }
 
@@ -381,7 +381,7 @@
 }
 
 .scaleCanvas figcaption {
-  margin-top: 11px;
+  margin-top: 8px;
   color: var(--slate);
   font-size: 12px;
   line-height: 1.5;
@@ -389,12 +389,12 @@
 
 @media (max-width: 560px) {
   .scaleCanvas {
-    margin-top: 21px;
-    padding: 13px;
+    margin-top: 16px;
+    padding: 11px;
   }
 
   .scaleCanvasViewport {
-    min-block-size: 176px;
+    min-block-size: 108px;
   }
 
   .scaleCanvas figcaption {
@@ -406,4 +406,54 @@
   .scaleCanvasTrack {
     transition: none;
   }
+}
+
+/* A larger control target makes the full 80–400% range usable on touch screens. */
+.range {
+  min-block-size: 44px;
+  margin-top: 2px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 100% 6px;
+}
+
+.range::-webkit-slider-thumb {
+  width: 28px;
+  height: 28px;
+}
+
+.range::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+}
+
+.scaleQuickActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.scaleQuickActions button {
+  min-block-size: 34px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--slate);
+  background: var(--surface);
+  font: 500 11px var(--font-code), monospace;
+  cursor: pointer;
+  transition: color 180ms var(--ease), border-color 180ms var(--ease), background 180ms var(--ease);
+}
+
+.scaleQuickActions button:hover,
+.scaleQuickActions button[aria-pressed="true"] {
+  border-color: var(--blue);
+  color: var(--blue);
+  background: var(--blue-soft);
+}
+
+.scaleQuickActions button:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--blue) 24%, transparent);
+  outline-offset: 2px;
 }

@@ -81,6 +81,13 @@
   min-inline-size: 0;
 }
 
+/* This is a fixed navigation rail, not a logo-height calculation. */
+.home-nav {
+  box-sizing: border-box;
+  block-size: 95px;
+  min-block-size: 95px;
+}
+
 .home-brand .brand-logo,
 .coming-soon-brand .brand-logo,
 .audience-brand .brand-logo,
@@ -180,6 +187,11 @@
 }
 
 @media (max-width: 540px) {
+  .home-nav {
+    block-size: 78px;
+    min-block-size: 78px;
+  }
+
   .home-brand {
     --trussline-home-logo-rail: min(230px, 62vw);
     block-size: 52px;
