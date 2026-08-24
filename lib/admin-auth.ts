@@ -33,9 +33,15 @@ function configuredOtpEmail() {
   return value.toLocaleLowerCase("en-US");
 }
 
+function serverEnvironmentValue(name: string) {
+  // Bracket access deliberately keeps protected runtime configuration from
+  // being compiled into a static browser bundle or a stale build-time value.
+  return process.env[name]?.trim();
+}
+
 function supabaseAuthConfig() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL?.trim();
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
+  const url = serverEnvironmentValue("NEXT_PUBLIC_SUPABASE_URL");
+  const anonKey = serverEnvironmentValue("NEXT_PUBLIC_SUPABASE_ANON_KEY");
   if (!url || !anonKey) return undefined;
 
   try {
