@@ -40,7 +40,7 @@ export async function PUT(request: Request) {
   } catch {
     return noStore({ error: "Use a valid logo size." }, 400);
   }
-  if (!logoScale) return noStore({ error: "Choose a logo size between 80% and 140%." }, 400);
+  if (!logoScale) return noStore({ error: "Choose a logo size between 80% and 400%." }, 400);
 
   try {
     const result = await updateSiteBrandSettings(logoScale);

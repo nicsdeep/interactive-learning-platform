@@ -2,7 +2,7 @@ import type { CSSProperties } from "react";
 
 export const DEFAULT_LOGO_SCALE = 1.2;
 export const MIN_LOGO_SCALE = 0.8;
-export const MAX_LOGO_SCALE = 1.4;
+export const MAX_LOGO_SCALE = 4;
 
 export type SiteBrandSettings = {
   logoScale: number;
@@ -95,8 +95,10 @@ function pixels(value: number, scale: number) {
 }
 
 /**
- * Each placement keeps its own base size and responsive caps. This avoids
- * transform scaling, which can create overlap and clipped marks on phones.
+ * These describe the requested artwork size. Each public placement then maps
+ * that request into a responsive display rail. In particular, navigation and
+ * footer rails never resize: the full SVG is contained inside them so a 400%
+ * request cannot reflow the page or distort the mark on a phone.
  */
 export function getBrandLogoCssVariables(logoScale: number): BrandLogoCssVariables {
   const scale = normalizeLogoScale(logoScale) ?? DEFAULT_LOGO_SCALE;

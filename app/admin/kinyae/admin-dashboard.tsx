@@ -30,9 +30,11 @@ type SettingsPayload = {
 };
 
 const MIN_LOGO_SCALE = 0.8;
-const MAX_LOGO_SCALE = 1.4;
+const MAX_LOGO_SCALE = 4;
 const DEFAULT_LOGO_SCALE = 1.2;
 const AUTO_SAVE_DELAY = 700;
+const DESKTOP_PREVIEW_RAIL = 258;
+const MOBILE_PREVIEW_RAIL = 154;
 
 type SaveStatus = "idle" | "previewing" | "saving" | "saved" | "error" | "unavailable";
 
@@ -46,8 +48,10 @@ function logoScaleFromPayload(payload: SettingsPayload) {
   return typeof value === "number" && Number.isFinite(value) ? clampLogoScale(value) : undefined;
 }
 
-function previewStyle(width: number): CSSProperties {
-  return { "--admin-preview-width": `${width}px` } as CSSProperties;
+function previewStyle(requestedWidth: number, railWidth: number): CSSProperties {
+  return {
+    "--admin-preview-width": `${Math.min(requestedWidth, railWidth)}px`,
+  } as CSSProperties;
 }
 
 export default function AdminDashboard({ initialLogoScale, persistenceConfigured }: AdminDashboardProps) {
@@ -232,11 +236,11 @@ export default function AdminDashboard({ initialLogoScale, persistenceConfigured
               </div>
             </div>
 
-            <p className={styles.panelCopy}>Increase or reduce the Trussline logo without distorting the artwork or interrupting responsive layouts.</p>
+            <p className={styles.panelCopy}>Set the brand presence from 80% to 400%. The full mark stays whole, while protected navigation and footer frames keep their shape on every screen.</p>
 
             <div className={styles.scaleReadout} aria-live="polite">
               <output htmlFor="logo-scale" className={styles.scaleValue}>{percentage}%</output>
-              <span>Current display scale</span>
+              <span>Requested display scale</span>
             </div>
 
             <fieldset className={styles.scaleFieldset}>
@@ -251,11 +255,11 @@ export default function AdminDashboard({ initialLogoScale, persistenceConfigured
                 step="0.02"
                 value={logoScale}
                 onInput={(event) => updateScale(Number(event.currentTarget.value))}
-                aria-valuetext={`${percentage} percent of the base logo size`}
+                aria-valuetext={`${percentage} percent of the base logo size. Navigation and footer frames stay protected.`}
                 aria-describedby="logo-scale-status"
                 style={{ background: `linear-gradient(90deg, var(--blue) 0 ${((logoScale - MIN_LOGO_SCALE) / (MAX_LOGO_SCALE - MIN_LOGO_SCALE)) * 100}%, var(--blue-soft) ${((logoScale - MIN_LOGO_SCALE) / (MAX_LOGO_SCALE - MIN_LOGO_SCALE)) * 100}% 100%)` }}
               />
-              <div className={styles.rangeLegend} aria-hidden="true"><span>Compact</span><span>More prominent</span></div>
+              <div className={styles.rangeLegend} aria-hidden="true"><span>Compact · 80%</span><span>Maximum presence · 400%</span></div>
             </fieldset>
 
             <div id="logo-scale-status" className={styles.autosaveStatus} data-state={saveStatus} role={saveStatus === "error" ? "alert" : "status"} aria-live={saveStatus === "error" ? "assertive" : "polite"}>
@@ -291,7 +295,7 @@ export default function AdminDashboard({ initialLogoScale, persistenceConfigured
               <article className={styles.desktopPreview} aria-label="Desktop logo preview">
                 <div className={styles.previewMeta}><Monitor size={15} aria-hidden="true" /> Desktop navigation</div>
                 <div className={styles.desktopBar} data-logo-surface="light">
-                  <div className={styles.previewMark} style={previewStyle(desktopWidth)}><BrandLogo /></div>
+                  <div className={styles.previewMark} style={previewStyle(desktopWidth, DESKTOP_PREVIEW_RAIL)}><BrandLogo /></div>
                   <div className={styles.previewLines} aria-hidden="true"><i /><i /><i /></div>
                 </div>
                 <p>Wide-screen header</p>
@@ -301,7 +305,7 @@ export default function AdminDashboard({ initialLogoScale, persistenceConfigured
                 <div className={styles.previewMeta}><Smartphone size={15} aria-hidden="true" /> Mobile navigation</div>
                 <div className={styles.phoneFrame}>
                   <div className={styles.phoneBar} data-logo-surface="light">
-                    <div className={styles.previewMark} style={previewStyle(mobileWidth)}><BrandLogo /></div>
+                    <div className={styles.previewMark} style={previewStyle(mobileWidth, MOBILE_PREVIEW_RAIL)}><BrandLogo /></div>
                     <span className={styles.menuGlyph} aria-hidden="true"><i /><i /><i /></span>
                   </div>
                   <div className={styles.phoneContent} aria-hidden="true"><span /><span /><span /></div>
@@ -312,7 +316,7 @@ export default function AdminDashboard({ initialLogoScale, persistenceConfigured
 
             <div className={styles.previewNote}>
               <ArrowUpRight size={17} aria-hidden="true" />
-              <p>The logo automatically selects its light or dark SVG version for the surface behind it.</p>
+              <p>The logo automatically selects its light or dark SVG version for the surface behind it. At larger settings, fixed display rails preserve the header and footer geometry.</p>
             </div>
           </section>
         </div>

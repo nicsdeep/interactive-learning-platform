@@ -65,3 +65,156 @@
     width: min(var(--trussline-logo-footer-mobile), 70vw) !important;
   }
 }
+
+/*
+ * Fixed placement rails make the global control safe at 400%.
+ * The artwork may grow or reduce inside a rail, but the rail itself is part
+ * of the composition: no header, footer, or phone navigation can reflow.
+ */
+.home-brand {
+  --trussline-home-logo-rail: clamp(208px, 17vw, 244px);
+  display: flex;
+  flex: 0 0 var(--trussline-home-logo-rail);
+  align-items: center;
+  inline-size: var(--trussline-home-logo-rail);
+  block-size: 54px;
+  min-inline-size: 0;
+}
+
+.home-brand .brand-logo,
+.coming-soon-brand .brand-logo,
+.audience-brand .brand-logo,
+.curricula-brand .brand-logo,
+.experience-brand .brand-logo,
+.info-page .global-logo .brand-logo,
+.site-footer-signature .brand-logo {
+  display: flex;
+  align-items: center;
+  max-inline-size: 100%;
+  max-block-size: 100%;
+}
+
+.home-brand .brand-logo {
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.home-brand img {
+  width: min(var(--trussline-logo-home), 100%) !important;
+  max-inline-size: 100% !important;
+  max-block-size: 100%;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.coming-soon-brand,
+.audience-brand,
+.curricula-brand,
+.experience-brand {
+  --trussline-inline-logo-rail: min(246px, 54vw);
+  display: flex;
+  flex: 0 1 var(--trussline-inline-logo-rail);
+  align-items: center;
+  inline-size: var(--trussline-inline-logo-rail);
+  block-size: 54px;
+  min-inline-size: 0;
+}
+
+.coming-soon-brand .brand-logo,
+.audience-brand .brand-logo,
+.curricula-brand .brand-logo,
+.experience-brand .brand-logo {
+  inline-size: 100%;
+  block-size: 100%;
+}
+
+.coming-soon-brand img {
+  width: min(var(--trussline-logo-launch), 100%) !important;
+  max-inline-size: 100% !important;
+  max-block-size: 100%;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.audience-brand img,
+.curricula-brand img,
+.experience-brand img {
+  width: min(var(--trussline-logo-info), 100%) !important;
+  max-inline-size: 100% !important;
+  max-block-size: 100%;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.info-page .global-logo .brand-logo {
+  inline-size: min(246px, 52vw);
+  block-size: 54px;
+}
+
+.info-page .global-logo .brand-logo img {
+  width: min(var(--trussline-logo-info), 100%) !important;
+  max-inline-size: 100% !important;
+  max-block-size: 100%;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.site-footer-signature .brand-logo {
+  inline-size: min(285px, 70vw);
+  block-size: 64px;
+  justify-content: center;
+}
+
+.site-footer-signature .brand-logo img {
+  width: min(var(--trussline-logo-footer), 100%) !important;
+  max-inline-size: 100% !important;
+  max-block-size: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+
+@media (max-width: 900px) {
+  .home-brand {
+    --trussline-home-logo-rail: min(240px, 46vw);
+  }
+}
+
+@media (max-width: 540px) {
+  .home-brand {
+    --trussline-home-logo-rail: min(230px, 62vw);
+    block-size: 52px;
+  }
+
+  .coming-soon-brand,
+  .audience-brand,
+  .curricula-brand,
+  .experience-brand {
+    --trussline-inline-logo-rail: min(195px, 52vw);
+    block-size: 43px;
+  }
+
+  .coming-soon-brand img {
+    width: min(var(--trussline-logo-launch-mobile), 100%) !important;
+  }
+
+  .audience-brand img,
+  .curricula-brand img,
+  .experience-brand img,
+  .info-page .global-logo .brand-logo img {
+    width: min(var(--trussline-logo-info-mobile), 100%) !important;
+  }
+
+  .info-page .global-logo .brand-logo {
+    inline-size: min(195px, 52vw);
+    block-size: 43px;
+  }
+
+  .site-footer-signature .brand-logo {
+    inline-size: min(240px, 72vw);
+    block-size: 58px;
+  }
+
+  .site-footer-signature .brand-logo img {
+    width: min(var(--trussline-logo-footer-mobile), 100%) !important;
+  }
+}
