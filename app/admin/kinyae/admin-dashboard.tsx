@@ -1,10 +1,11 @@
 "use client";
 
-import { CSSProperties, useEffect, useMemo, useState } from "react";
+import { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowUpRight,
   CheckCircle2,
   CircleAlert,
+  Clock3,
   Gauge,
   LogOut,
   Monitor,
@@ -31,6 +32,9 @@ type SettingsPayload = {
 const MIN_LOGO_SCALE = 0.8;
 const MAX_LOGO_SCALE = 1.4;
 const DEFAULT_LOGO_SCALE = 1.2;
+const AUTO_SAVE_DELAY = 700;
+
+type SaveStatus = "idle" | "previewing" | "saving" | "saved" | "error" | "unavailable";
 
 function clampLogoScale(value: number) {
   if (!Number.isFinite(value)) return DEFAULT_LOGO_SCALE;
@@ -51,13 +55,102 @@ export default function AdminDashboard({ initialLogoScale, persistenceConfigured
   const [savedLogoScale, setSavedLogoScale] = useState(() => clampLogoScale(initialLogoScale));
   const [isSaving, setIsSaving] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [message, setMessage] = useState("");
+  const [saveStatus, setSaveStatus] = useState<SaveStatus>(persistenceConfigured ? "idle" : "unavailable");
   const [error, setError] = useState("");
+  const latestLogoScale = useRef(clampLogoScale(initialLogoScale));
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const pendingSave = useRef<number | null>(null);
+  const saveInFlight = useRef(false);
+  const isMounted = useRef(true);
 
   const percentage = Math.round(logoScale * 100);
   const hasChanges = logoScale !== savedLogoScale;
   const desktopWidth = useMemo(() => Math.round(210 * logoScale), [logoScale]);
   const mobileWidth = useMemo(() => Math.round(144 * logoScale), [logoScale]);
+
+  const clearAutoSaveTimer = useCallback(() => {
+    if (autoSaveTimer.current) {
+      clearTimeout(autoSaveTimer.current);
+      autoSaveTimer.current = null;
+    }
+  }, []);
+
+  const saveScale = useCallback(async (scaleToSave: number) => {
+    if (!persistenceConfigured) return;
+
+    if (saveInFlight.current) {
+      pendingSave.current = scaleToSave;
+      return;
+    }
+
+    const normalizedScale = clampLogoScale(scaleToSave);
+    saveInFlight.current = true;
+    setIsSaving(true);
+    setSaveStatus("saving");
+    setError("");
+
+    try {
+      const response = await fetch("/api/admin/site-settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ logoScale: normalizedScale }),
+      });
+      const payload = await response.json().catch(() => ({})) as SettingsPayload;
+
+      if (!response.ok) {
+        if (isMounted.current) {
+          setSaveStatus("error");
+          setError(payload.error || "Your preview is still here, but this size could not be saved. Please try again.");
+        }
+        return;
+      }
+
+      const saved = logoScaleFromPayload(payload) ?? normalizedScale;
+      if (isMounted.current) {
+        setSavedLogoScale(saved);
+        const hasNewerPreview = latestLogoScale.current !== saved;
+        setSaveStatus(hasNewerPreview ? "previewing" : "saved");
+      }
+    } catch {
+      if (isMounted.current) {
+        setSaveStatus("error");
+        setError("Your preview is still here, but the change could not be saved. Please try again.");
+      }
+    } finally {
+      saveInFlight.current = false;
+      if (isMounted.current) setIsSaving(false);
+
+      const newerScale = pendingSave.current ?? (latestLogoScale.current !== normalizedScale ? latestLogoScale.current : null);
+      pendingSave.current = null;
+      if (newerScale !== null && newerScale !== normalizedScale) {
+        // Keep requests ordered. A new adjustment made while a save was in flight
+        // is sent immediately after the earlier response has settled.
+        void saveScale(newerScale);
+      }
+    }
+  }, [persistenceConfigured]);
+
+  const scheduleAutoSave = useCallback((scaleToSave: number) => {
+    if (!persistenceConfigured) {
+      setSaveStatus("unavailable");
+      return;
+    }
+
+    clearAutoSaveTimer();
+    setSaveStatus("previewing");
+    autoSaveTimer.current = setTimeout(() => {
+      autoSaveTimer.current = null;
+      void saveScale(scaleToSave);
+    }, AUTO_SAVE_DELAY);
+  }, [clearAutoSaveTimer, persistenceConfigured, saveScale]);
+
+  useEffect(() => {
+    isMounted.current = true;
+    return () => {
+      isMounted.current = false;
+      clearAutoSaveTimer();
+    };
+  }, [clearAutoSaveTimer]);
 
   useEffect(() => {
     if (!persistenceConfigured) return;
@@ -70,8 +163,10 @@ export default function AdminDashboard({ initialLogoScale, persistenceConfigured
         const payload = await response.json() as SettingsPayload;
         const remoteScale = logoScaleFromPayload(payload);
         if (remoteScale === undefined) return;
+        latestLogoScale.current = remoteScale;
         setLogoScale(remoteScale);
         setSavedLogoScale(remoteScale);
+        setSaveStatus("idle");
       } catch {
         // The server-rendered setting remains usable if this refresh is unavailable.
       }
@@ -82,39 +177,17 @@ export default function AdminDashboard({ initialLogoScale, persistenceConfigured
   }, [persistenceConfigured]);
 
   function updateScale(nextValue: number) {
-    setLogoScale(clampLogoScale(nextValue));
-    setMessage("");
+    const nextScale = clampLogoScale(nextValue);
+    latestLogoScale.current = nextScale;
+    setLogoScale(nextScale);
     setError("");
+    scheduleAutoSave(nextScale);
   }
 
-  async function saveChanges() {
-    if (!persistenceConfigured || isSaving) return;
-    setIsSaving(true);
-    setMessage("");
-    setError("");
-
-    try {
-      const response = await fetch("/api/admin/site-settings", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ logoScale }),
-      });
-      const payload = await response.json().catch(() => ({})) as SettingsPayload;
-
-      if (!response.ok) {
-        setError(payload.error || "The change could not be saved. Please try again.");
-        return;
-      }
-
-      const saved = logoScaleFromPayload(payload) ?? logoScale;
-      setLogoScale(saved);
-      setSavedLogoScale(saved);
-      setMessage("Saved. The updated logo scale is now used across the public experience.");
-    } catch {
-      setError("The secure connection is unavailable. Please try again.");
-    } finally {
-      setIsSaving(false);
-    }
+  function saveNow() {
+    if (!persistenceConfigured) return;
+    clearAutoSaveTimer();
+    void saveScale(latestLogoScale.current);
   }
 
   async function logOut() {
@@ -166,7 +239,7 @@ export default function AdminDashboard({ initialLogoScale, persistenceConfigured
               <span>Current display scale</span>
             </div>
 
-            <fieldset className={styles.scaleFieldset} disabled={!persistenceConfigured || isSaving}>
+            <fieldset className={styles.scaleFieldset}>
               <legend className="sr-only">Logo scale</legend>
               <label className={styles.rangeLabel} htmlFor="logo-scale">Logo size</label>
               <input
@@ -177,32 +250,31 @@ export default function AdminDashboard({ initialLogoScale, persistenceConfigured
                 max={MAX_LOGO_SCALE}
                 step="0.02"
                 value={logoScale}
-                onChange={(event) => updateScale(Number(event.target.value))}
+                onInput={(event) => updateScale(Number(event.currentTarget.value))}
                 aria-valuetext={`${percentage} percent of the base logo size`}
+                aria-describedby="logo-scale-status"
                 style={{ background: `linear-gradient(90deg, var(--blue) 0 ${((logoScale - MIN_LOGO_SCALE) / (MAX_LOGO_SCALE - MIN_LOGO_SCALE)) * 100}%, var(--blue-soft) ${((logoScale - MIN_LOGO_SCALE) / (MAX_LOGO_SCALE - MIN_LOGO_SCALE)) * 100}% 100%)` }}
               />
               <div className={styles.rangeLegend} aria-hidden="true"><span>Compact</span><span>More prominent</span></div>
             </fieldset>
 
-            {!persistenceConfigured ? (
-              <div className={styles.setupNotice} role="status">
-                <CircleAlert size={18} aria-hidden="true" />
-                <p><strong>Saving is being prepared.</strong> Your current logo remains unchanged. Contact the Trussline platform owner to enable publishing.</p>
-              </div>
-            ) : null}
+            <div id="logo-scale-status" className={styles.autosaveStatus} data-state={saveStatus} role={saveStatus === "error" ? "alert" : "status"} aria-live={saveStatus === "error" ? "assertive" : "polite"}>
+              {saveStatus === "unavailable" ? <><CircleAlert size={16} aria-hidden="true" /><span><strong>Preview only.</strong> You can explore a size here, but it cannot be applied to the live experience yet.</span></> : null}
+              {saveStatus === "previewing" ? <><Clock3 size={16} aria-hidden="true" /><span>Preview updated. It will save automatically when you finish adjusting.</span></> : null}
+              {saveStatus === "saving" ? <><Save className={styles.savingIcon} size={16} aria-hidden="true" /><span>Saving your new logo size…</span></> : null}
+              {saveStatus === "saved" ? <><CheckCircle2 size={16} aria-hidden="true" /><span>Saved automatically. The updated size is now ready to use.</span></> : null}
+              {saveStatus === "idle" ? <><CheckCircle2 size={16} aria-hidden="true" /><span>Your changes save automatically.</span></> : null}
+              {saveStatus === "error" ? <><CircleAlert size={16} aria-hidden="true" /><span>{error || "Your preview is still visible. Try saving again when you are ready."}</span></> : null}
+            </div>
 
             <div className={styles.controlActions}>
-              <button className={styles.resetButton} type="button" onClick={() => updateScale(DEFAULT_LOGO_SCALE)} disabled={!persistenceConfigured || isSaving || logoScale === DEFAULT_LOGO_SCALE}>
+              <button className={styles.resetButton} type="button" onClick={() => updateScale(DEFAULT_LOGO_SCALE)} disabled={logoScale === DEFAULT_LOGO_SCALE}>
                 <RefreshCcw size={16} aria-hidden="true" /> Reset to 120%
               </button>
-              <button className={styles.primaryButton} type="button" onClick={saveChanges} disabled={!persistenceConfigured || isSaving || !hasChanges}>
+              <button className={styles.manualSaveButton} type="button" onClick={saveNow} disabled={!persistenceConfigured || isSaving || !hasChanges}>
                 <Save size={16} aria-hidden="true" />
-                {isSaving ? "Saving…" : "Save changes"}
+                {saveStatus === "error" ? "Try saving again" : "Save now"}
               </button>
-            </div>
-            <div className={styles.feedback} aria-live="polite">
-              {message ? <p className={styles.successMessage}><CheckCircle2 size={16} aria-hidden="true" /> {message}</p> : null}
-              {error ? <p className={styles.errorMessage} role="alert"><CircleAlert size={16} aria-hidden="true" /> {error}</p> : null}
             </div>
           </section>
 
@@ -212,7 +284,7 @@ export default function AdminDashboard({ initialLogoScale, persistenceConfigured
                 <p className={styles.panelKicker}>Live preview</p>
                 <h2 id="logo-preview-title">Clear at every breakpoint.</h2>
               </div>
-              <span className={styles.previewStatus}><span aria-hidden="true" /> Synchronized</span>
+              <span className={styles.previewStatus} data-state={saveStatus}><span aria-hidden="true" /> {saveStatus === "unavailable" ? "Preview mode" : saveStatus === "saving" || saveStatus === "previewing" ? "Updating" : "Live preview"}</span>
             </div>
 
             <div className={styles.previewGrid}>

@@ -22,7 +22,11 @@ function publicSupabase() {
 
 function serviceSupabase() {
   const publicConfig = publicSupabase();
-  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  // The primary name is intentionally explicit. The second name is a
+  // server-only Vercel compatibility alias for the existing encrypted
+  // project setting, so it is never bundled into the browser or source.
+  const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY?.trim()
+    || process.env.vercel_admin_settings_live?.trim();
   return publicConfig && serviceKey ? { ...publicConfig, serviceKey } : undefined;
 }
 

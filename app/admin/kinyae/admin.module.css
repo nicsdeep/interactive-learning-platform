@@ -42,3 +42,226 @@
     height: 78px;
   }
 }
+
+/* The identity controls stay intentionally tactile: every size is visible in
+   the previews while the setting is being adjusted, before it is published. */
+.range {
+  touch-action: pan-y;
+  transition: background 180ms var(--ease);
+}
+
+.range::-webkit-slider-thumb {
+  transition: transform 180ms var(--ease), box-shadow 180ms var(--ease);
+}
+
+.range::-webkit-slider-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.1);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--blue) 17%, transparent), 0 2px 7px rgba(12, 26, 46, .18);
+}
+
+.range::-moz-range-thumb {
+  transition: transform 180ms var(--ease), box-shadow 180ms var(--ease);
+}
+
+.range::-moz-range-thumb:active {
+  cursor: grabbing;
+  transform: scale(1.1);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--blue) 17%, transparent), 0 2px 7px rgba(12, 26, 46, .18);
+}
+
+.autosaveStatus {
+  display: flex;
+  gap: 9px;
+  align-items: flex-start;
+  min-height: 46px;
+  margin-top: 19px;
+  padding: 12px 13px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--slate);
+  background: var(--paper);
+  font-size: 12px;
+  line-height: 1.5;
+  transition: background 180ms var(--ease), border-color 180ms var(--ease), color 180ms var(--ease);
+}
+
+.autosaveStatus svg {
+  flex: none;
+  margin-top: 1px;
+  color: var(--blue);
+}
+
+.autosaveStatus strong {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.autosaveStatus[data-state="previewing"] {
+  border-color: color-mix(in srgb, var(--blue) 34%, var(--line));
+  background: color-mix(in srgb, var(--blue-soft) 58%, var(--surface));
+}
+
+.autosaveStatus[data-state="saving"] {
+  border-color: color-mix(in srgb, var(--amber) 44%, var(--line));
+  background: color-mix(in srgb, var(--amber) 10%, var(--surface));
+}
+
+.autosaveStatus[data-state="saving"] svg {
+  color: var(--amber);
+}
+
+.autosaveStatus[data-state="saved"],
+.autosaveStatus[data-state="idle"] {
+  border-color: color-mix(in srgb, var(--teal) 34%, var(--line));
+  background: color-mix(in srgb, var(--teal) 8%, var(--surface));
+}
+
+.autosaveStatus[data-state="saved"] svg,
+.autosaveStatus[data-state="idle"] svg {
+  color: var(--teal);
+}
+
+.autosaveStatus[data-state="error"] {
+  border-color: color-mix(in srgb, var(--danger) 42%, var(--line));
+  background: color-mix(in srgb, var(--danger) 7%, var(--surface));
+}
+
+.autosaveStatus[data-state="error"] svg {
+  color: var(--danger);
+}
+
+.autosaveStatus[data-state="unavailable"] {
+  border-color: color-mix(in srgb, var(--amber) 50%, var(--line));
+  background: color-mix(in srgb, var(--amber) 9%, var(--surface));
+}
+
+.autosaveStatus[data-state="unavailable"] svg {
+  color: var(--amber);
+}
+
+.savingIcon {
+  animation: admin-save-pulse 1s ease-in-out infinite;
+}
+
+.manualSaveButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 14px;
+  border: 1px solid color-mix(in srgb, var(--blue) 50%, var(--line));
+  border-radius: 10px;
+  color: var(--blue);
+  background: var(--surface);
+  font: 500 13px var(--font-sans), Arial, sans-serif;
+  cursor: pointer;
+  transition: color 180ms var(--ease), background 180ms var(--ease), border-color 180ms var(--ease), transform 180ms var(--ease), opacity 180ms var(--ease);
+}
+
+.manualSaveButton:hover:not(:disabled) {
+  border-color: var(--blue);
+  color: var(--blue-hover);
+  background: var(--blue-soft);
+  transform: translateY(-1px);
+}
+
+.manualSaveButton:disabled {
+  cursor: not-allowed;
+  opacity: .5;
+}
+
+.previewGrid {
+  grid-template-columns: minmax(0, 1.08fr) minmax(280px, .92fr);
+}
+
+.desktopBar {
+  min-height: 128px;
+  justify-content: flex-start;
+}
+
+.desktopBar .previewLines {
+  display: none;
+}
+
+.previewMark {
+  overflow: visible;
+  flex: none;
+}
+
+.previewMark :global(.brand-logo img) {
+  transition: width 180ms var(--ease);
+  will-change: width;
+}
+
+.phoneFrame {
+  width: min(100%, 252px);
+}
+
+.phoneBar {
+  min-height: 67px;
+}
+
+.phoneBar .previewMark {
+  min-width: 0;
+}
+
+.previewStatus[data-state="previewing"] > span,
+.previewStatus[data-state="saving"] > span {
+  background: var(--amber);
+  animation: admin-save-pulse 1s ease-in-out infinite;
+}
+
+@keyframes admin-save-pulse {
+  50% { opacity: .45; transform: scale(.82); }
+}
+
+@media (max-width: 820px) {
+  .previewGrid {
+    grid-template-columns: minmax(0, 1fr) minmax(260px, .88fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .autosaveStatus {
+    margin-top: 17px;
+  }
+
+  .controlActions {
+    gap: 8px;
+  }
+
+  .manualSaveButton {
+    width: 100%;
+  }
+
+  .previewGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .desktopBar {
+    min-height: 118px;
+  }
+
+  .phoneFrame {
+    width: min(100%, 272px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .range,
+  .range::-webkit-slider-thumb,
+  .range::-moz-range-thumb,
+  .previewMark :global(.brand-logo img),
+  .autosaveStatus,
+  .manualSaveButton {
+    transition: none;
+  }
+
+  .savingIcon,
+  .previewStatus[data-state="previewing"] > span,
+  .previewStatus[data-state="saving"] > span {
+    animation: none;
+  }
+}
