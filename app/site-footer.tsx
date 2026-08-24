@@ -1,8 +1,14 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { ArrowUpRight, Globe2 } from "lucide-react";
 import BrandLogo from "./brand-logo";
 
 export default function SiteFooter() {
+  const pathname = usePathname();
+  if (pathname.startsWith("/admin")) return null;
+
   return <footer id="site-footer" className="site-footer" data-logo-surface="dark">
     <svg className="site-footer-learning-horizon" viewBox="0 0 1440 90" preserveAspectRatio="none" aria-hidden="true" focusable="false">
       <path d="M0 90V74h58V57h34v17h104V46h46v25h78V32h43v38h87V51h52v23h132V38h38v29h80V25h45v47h110V52h54v22h106V43h43v25h92V31h39v43h108V56h43v18h69V90Z" fill="currentColor" />

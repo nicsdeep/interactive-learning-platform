@@ -84,6 +84,6 @@ export default function BrandLogo({ dark = false, monochrome = false }: BrandLog
 
   const source = assetFor(tone, monochrome);
   return <span ref={setLogoElement} className={`brand-logo brand-logo--${tone}${monochrome ? " is-monochrome" : ""}`} data-logo-asset={source}>
-    <img src={source} width="500" height="110" alt="Trussline Interactive Learning" draggable />
+    <img src={source} width="500" height="110" alt="Trussline Interactive Learning" draggable={false} />
   </span>;
 }

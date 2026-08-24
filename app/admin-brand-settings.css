@@ -1,0 +1,67 @@
+/*
+ * Global appearance tokens controlled by /admin/kinyae.
+ * The values are generated server-side from a validated scale; each placement
+ * retains its own responsive cap, so a larger brand mark never overlaps UI.
+ */
+.home-brand img {
+  width: var(--trussline-logo-home) !important;
+  max-width: 22vw;
+}
+
+.coming-soon-brand img {
+  width: var(--trussline-logo-launch) !important;
+}
+
+.audience-brand img,
+.curricula-brand img,
+.experience-brand img {
+  width: var(--trussline-logo-info) !important;
+}
+
+/* `.global-logo span` predates the SVG lockup and otherwise makes it 30px. */
+.info-page .global-logo .brand-logo {
+  display: inline-flex;
+  width: auto;
+  height: auto;
+  padding: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.info-page .global-logo .brand-logo img {
+  width: var(--trussline-logo-info) !important;
+  max-width: 52vw;
+}
+
+.site-footer-signature .brand-logo img {
+  width: min(var(--trussline-logo-footer), 22vw) !important;
+}
+
+@media (max-width: 900px) {
+  .home-brand img { max-width: 46vw; }
+  .site-footer-signature .brand-logo img { width: min(var(--trussline-logo-footer), 44vw) !important; }
+}
+
+@media (max-width: 540px) {
+  .home-brand img {
+    width: var(--trussline-logo-home-mobile) !important;
+    max-width: 67vw;
+  }
+
+  .coming-soon-brand img {
+    width: var(--trussline-logo-launch-mobile) !important;
+    max-width: 57vw;
+  }
+
+  .audience-brand img,
+  .curricula-brand img,
+  .experience-brand img,
+  .info-page .global-logo .brand-logo img {
+    width: var(--trussline-logo-info-mobile) !important;
+    max-width: 52vw;
+  }
+
+  .site-footer-signature .brand-logo img {
+    width: min(var(--trussline-logo-footer-mobile), 70vw) !important;
+  }
+}
