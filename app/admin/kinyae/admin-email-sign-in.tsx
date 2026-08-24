@@ -44,7 +44,9 @@ export default function AdminEmailSignIn({ onBack }: AdminEmailSignInProps) {
       const response = await fetch("/api/admin/otp/request", { method: "POST" });
       const payload = await response.json().catch(() => ({})) as EmailSignInResponse;
       if (!response.ok) {
-        setError(payload.error || "We could not send a secure sign-in link. Please try again shortly.");
+        const retryAfter = Number(response.headers.get("Retry-After"));
+        if (Number.isFinite(retryAfter) && retryAfter > 0) setResendAt(Date.now() + retryAfter * 1_000);
+        setError(payload.error || "We could not prepare a secure sign-in link right now. Please use your password or try again shortly.");
         return;
       }
 
@@ -103,7 +105,7 @@ export default function AdminEmailSignIn({ onBack }: AdminEmailSignInProps) {
         <>
           <div className={styles.success} role="status">
             <CheckCircle2 size={18} aria-hidden="true" />
-            <p>Check your inbox and open the one-time link to sign in. If your email includes a code instead, enter it below.</p>
+            <p>Check your inbox and open the one-time link in this browser to sign in. If your email includes a code instead, enter it below.</p>
           </div>
 
           <form className={styles.codeForm} onSubmit={verifyCode} noValidate>

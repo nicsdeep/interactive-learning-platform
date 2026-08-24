@@ -23,6 +23,25 @@ function privateJson(payload: Record<string, unknown>, status = 200, retryAfterS
   return NextResponse.json(payload, { status, headers });
 }
 
+function providerFailure(error: unknown) {
+  const status = typeof error === "object" && error !== null && "status" in error && typeof error.status === "number"
+    ? error.status
+    : undefined;
+
+  if (status === 429) {
+    return {
+      error: "A secure link was just requested. Please wait a minute before requesting another.",
+      status: 429,
+      retryAfterSeconds: 60,
+    };
+  }
+
+  return {
+    error: "We could not prepare a secure sign-in link right now. Please use your password or try again shortly.",
+    status: 502,
+  };
+}
+
 /**
  * Sends a sign-in link only to the single verified administrator configured
  * in server environment variables. It never accepts an email from the client.
@@ -66,9 +85,14 @@ export async function POST(request: Request) {
         emailRedirectTo: callbackUrl,
       },
     });
+    if (error) {
+      const failure = providerFailure(error);
+      return privateJson({ error: failure.error }, failure.status, failure.retryAfterSeconds);
+    }
+
     const cookieValue = flow.getVerifier();
-    if (error || !cookieValue) {
-      return privateJson({ error: "We could not send a secure sign-in link. Please try again shortly." }, 502);
+    if (!cookieValue) {
+      return privateJson({ error: "We could not prepare a secure sign-in link right now. Please use your password or try again shortly." }, 503);
     }
 
     const encryptedFlow = createAdminOtpFlowCookieValue(cookieValue);

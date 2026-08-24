@@ -15,8 +15,8 @@ function publicSupabase() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   // Supabase now issues publishable keys for browser-facing access. Keep the
   // older anonymous-key name as a compatibility fallback for existing setups.
-  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
-    ?? process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  const anonKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY?.trim()
+    || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY?.trim();
   return url && anonKey ? { url, anonKey } : undefined;
 }
 

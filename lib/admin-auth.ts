@@ -36,7 +36,8 @@ function configuredOtpEmail() {
 function serverEnvironmentValue(name: string) {
   // Bracket access deliberately keeps protected runtime configuration from
   // being compiled into a static browser bundle or a stale build-time value.
-  return process.env[name]?.trim();
+  const value = process.env[name]?.trim();
+  return value || undefined;
 }
 
 function supabaseAuthConfig() {
@@ -137,7 +138,10 @@ function createAdminSupabaseAuthClient(storage?: AuthStorage) {
   return createClient(config.url, config.anonKey, {
     auth: {
       autoRefreshToken: false,
-      persistSession: false,
+      // The custom storage adapter holds only the short-lived PKCE verifier.
+      // auth-js writes that verifier only when persistence is enabled; its
+      // session writes are still discarded by our server-side adapter.
+      persistSession: Boolean(storage),
       detectSessionInUrl: false,
       flowType: "pkce",
       storage,
