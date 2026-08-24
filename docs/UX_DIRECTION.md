@@ -35,6 +35,10 @@ Trussline International's mark communicates learning progress, curriculum struct
 - The selected case study's **internal white landing page** (not its dark external portfolio framing) is the current Home reference: a light navigation bar, bold blue/red editorial emphasis, a warm human learning-guide image, direct CTAs, and concise proof metrics. Kora uses an original generated guide asset and original copy.
 - The public Home must remain internationally framed: it does not name a country-specific curriculum. All unfinished learner-entry routes show an honest Coming Soon state until the full experience is ready.
 
+## Public launch gate
+
+Until a product area is deliberately opened, `/learn` is the only public destination. All public page routes and CTAs redirect there, while static assets and the location API remain available. This prevents unfinished sections from being presented as ready and gives the product owner one clear place to decide what opens next.
+
 ## Source-of-truth relationship
 
 This file governs visual direction. `PRODUCT_CHARTER.md` governs product architecture and learning philosophy. Both must be checked before new UI work.
