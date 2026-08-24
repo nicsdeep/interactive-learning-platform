@@ -86,9 +86,23 @@ export function isAdminConfigured() {
 
 /** Safe for server-rendered UI: it intentionally exposes no email address. */
 export function getAdminAccessMethods() {
+  const configuredEmail = configuredOtpEmail();
+  const supabaseUrl = serverEnvironmentValue("NEXT_PUBLIC_SUPABASE_URL");
+  const supabaseAnonKey = serverEnvironmentValue("NEXT_PUBLIC_SUPABASE_ANON_KEY");
+  const emailLinkEnabled = Boolean(isAdminConfigured() && configuredEmail && supabaseUrl && supabaseAnonKey);
+
+  // Temporary deployment diagnostic. It reports only booleans so private
+  // values never enter logs; remove after confirming production configuration.
+  console.info("[trussline-admin-auth] access readiness", {
+    password: isAdminConfigured(),
+    email: Boolean(configuredEmail),
+    supabaseUrl: Boolean(supabaseUrl),
+    supabaseAnonKey: Boolean(supabaseAnonKey),
+  });
+
   return {
     passwordEnabled: isAdminConfigured(),
-    emailLinkEnabled: isAdminOtpConfigured(),
+    emailLinkEnabled,
   } as const;
 }
 
