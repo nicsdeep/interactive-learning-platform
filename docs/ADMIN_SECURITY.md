@@ -7,7 +7,11 @@ The private Trussline control room supports two deliberate ways to sign in:
 - A deployment-managed administrator password held only in encrypted project settings.
 - A one-time email link sent only to the single verified administrator email held in encrypted project settings.
 
-No password, email address, authentication token, or service credential belongs in source control, Supabase data, browser storage, or chat.
+No password, authentication token, or service credential belongs in source
+control, browser storage, or chat. The owner sign-in email allowlist remains in
+encrypted project settings. A future member invitation may retain the
+recipient's verified email only as private, service-only operational data in
+Supabase; it is never public, browser-readable, or used as a credential.
 
 ## Protections in this release
 
