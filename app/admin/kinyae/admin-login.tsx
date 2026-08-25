@@ -23,7 +23,7 @@ type AdminLoginProps = {
 
 export default function AdminLogin({ emailLinkEnabled, initialUsername = "LazimaIwork.AI" }: AdminLoginProps) {
   const [password, setPassword] = useState("");
-  const [username, setUsername] = useState(initialUsername);
+  const [username, setUsername] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [mode, setMode] = useState<LoginMode>("sign-in");
@@ -71,13 +71,14 @@ export default function AdminLogin({ emailLinkEnabled, initialUsername = "Lazima
     }
   }
 
+  const accountHandle = initialUsername.trim() || "LazimaIwork.AI";
+  const isRecognisedOwner = username.trim().toLocaleLowerCase("en-US") === accountHandle.toLocaleLowerCase("en-US");
+
   function continueWithVerifiedIdentity() {
     if (!emailLinkEnabled || !isRecognisedOwner) return;
     setError("");
     setMode("email-sign-in");
   }
-
-  const isRecognisedOwner = username.trim().toLocaleLowerCase("en-US") === initialUsername.trim().toLocaleLowerCase("en-US");
 
   return (
     <main className={styles.loginShell}>
@@ -113,6 +114,7 @@ export default function AdminLogin({ emailLinkEnabled, initialUsername = "Lazima
                     value={username}
                     onChange={(event) => setUsername(event.target.value)}
                     maxLength={64}
+                    placeholder={accountHandle}
                     autoComplete="username"
                     spellCheck="false"
                   />
@@ -120,7 +122,7 @@ export default function AdminLogin({ emailLinkEnabled, initialUsername = "Lazima
                     <KeyRound size={15} aria-hidden="true" /> Continue securely
                   </button>
                 </div>
-                <p>{isRecognisedOwner ? "Use your handle to choose the account, then confirm access with its verified sign-in method. A username alone never opens the control room." : "Use the owner username shown for this private workspace, then continue with verified sign-in."}</p>
+                <p>{isRecognisedOwner ? "Use your handle to choose the account, then confirm access with its verified sign-in method. A username alone never opens the control room." : <>Enter <strong>{accountHandle}</strong>, then continue with verified sign-in. A username alone never opens the control room.</>}</p>
               </div> : null}
               <AdminLoginSecurityControls
                 password={password}
@@ -146,7 +148,7 @@ export default function AdminLogin({ emailLinkEnabled, initialUsername = "Lazima
             </form>
           </section>
         ) : mode === "email-sign-in" ? (
-          <AdminEmailSignIn identityLabel={username.trim() || "your administrator account"} onBack={() => setMode("sign-in")} />
+          <AdminEmailSignIn identityLabel={accountHandle} onBack={() => setMode("sign-in")} />
         ) : (
           <AdminPasswordResetGuide onReturn={() => setMode("sign-in")} />
         )}
