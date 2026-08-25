@@ -18,11 +18,12 @@ type LoginMode = "sign-in" | "email-sign-in" | "reset-password";
 
 type AdminLoginProps = {
   emailLinkEnabled: boolean;
+  initialUsername?: string;
 };
 
-export default function AdminLogin({ emailLinkEnabled }: AdminLoginProps) {
+export default function AdminLogin({ emailLinkEnabled, initialUsername = "LazimaIwork.AI" }: AdminLoginProps) {
   const [password, setPassword] = useState("");
-  const [username, setUsername] = useState("LazimaIwork.AI");
+  const [username, setUsername] = useState(initialUsername);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [mode, setMode] = useState<LoginMode>("sign-in");
@@ -71,10 +72,12 @@ export default function AdminLogin({ emailLinkEnabled }: AdminLoginProps) {
   }
 
   function continueWithVerifiedIdentity() {
-    if (!emailLinkEnabled || !username.trim()) return;
+    if (!emailLinkEnabled || !isRecognisedOwner) return;
     setError("");
     setMode("email-sign-in");
   }
+
+  const isRecognisedOwner = username.trim().toLocaleLowerCase("en-US") === initialUsername.trim().toLocaleLowerCase("en-US");
 
   return (
     <main className={styles.loginShell}>
@@ -113,11 +116,11 @@ export default function AdminLogin({ emailLinkEnabled }: AdminLoginProps) {
                     autoComplete="username"
                     spellCheck="false"
                   />
-                  <button type="button" onClick={continueWithVerifiedIdentity} disabled={!username.trim()}>
+                  <button type="button" onClick={continueWithVerifiedIdentity} disabled={!isRecognisedOwner}>
                     <KeyRound size={15} aria-hidden="true" /> Continue securely
                   </button>
                 </div>
-                <p>Use your handle to choose the account, then confirm access with its verified sign-in method. A username alone never opens the control room.</p>
+                <p>{isRecognisedOwner ? "Use your handle to choose the account, then confirm access with its verified sign-in method. A username alone never opens the control room." : "Use the owner username shown for this private workspace, then continue with verified sign-in."}</p>
               </div> : null}
               <AdminLoginSecurityControls
                 password={password}

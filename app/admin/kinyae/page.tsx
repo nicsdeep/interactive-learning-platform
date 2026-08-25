@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import BrandLogo from "@/app/brand-logo";
 import { getAdminAccessMethods, isAdminAuthenticated, isAdminConfigured } from "@/lib/admin-auth";
-import { getAdminWorkspace } from "@/lib/admin-workspace";
+import { getAdminWorkspace, getBootstrapOwnerIdentity } from "@/lib/admin-workspace";
 import AdminWorkspace from "./admin-workspace";
 import AdminLogin from "./admin-login";
 import setupStyles from "./admin-setup.module.css";
@@ -28,7 +28,8 @@ export default async function KinyaeAdminPage() {
   }
 
   if (!authenticated) {
-    return <AdminLogin emailLinkEnabled={getAdminAccessMethods().emailLinkEnabled} />;
+    const identity = await getBootstrapOwnerIdentity();
+    return <AdminLogin emailLinkEnabled={getAdminAccessMethods().emailLinkEnabled} initialUsername={identity.username} />;
   }
 
   return <AdminWorkspace initialWorkspace={await getAdminWorkspace()} />;

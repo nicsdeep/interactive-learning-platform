@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import BrandLogo from "@/app/brand-logo";
 import { getAdminAccessMethods, isAdminAuthenticated, isAdminConfigured } from "@/lib/admin-auth";
 import { getSiteBrandSettings, isSiteBrandPersistenceConfigured } from "@/lib/site-brand-settings";
+import { getBootstrapOwnerIdentity } from "@/lib/admin-workspace";
 import AdminDashboard from "../admin-dashboard";
 import AdminLogin from "../admin-login";
 import setupStyles from "../admin-setup.module.css";
@@ -27,7 +28,10 @@ export default async function BrandControlsPage() {
     </main>;
   }
 
-  if (!authenticated) return <AdminLogin emailLinkEnabled={getAdminAccessMethods().emailLinkEnabled} />;
+  if (!authenticated) {
+    const identity = await getBootstrapOwnerIdentity();
+    return <AdminLogin emailLinkEnabled={getAdminAccessMethods().emailLinkEnabled} initialUsername={identity.username} />;
+  }
 
   const settings = await getSiteBrandSettings();
   return <AdminDashboard initialLogoScale={settings.logoScale} persistenceConfigured={isSiteBrandPersistenceConfigured()} />;

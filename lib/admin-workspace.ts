@@ -463,6 +463,15 @@ async function bootstrapOwner(client: SupabaseClient) {
   return error ? undefined : data as AdminMemberRow | null;
 }
 
+/** Safe for the sign-in screen: exposes the visible handle only, never email,
+ * role data, a session, or any other membership detail. */
+export async function getBootstrapOwnerIdentity() {
+  const client = adminClient();
+  if (!client) return { username: "LazimaIwork.AI" };
+  const owner = await bootstrapOwner(client);
+  return { username: owner?.username || "LazimaIwork.AI" };
+}
+
 export async function syncVerifiedBootstrapOwner(authUserId: string, email: string | null | undefined) {
   const client = adminClient();
   if (!client || !authUserId) return undefined;
