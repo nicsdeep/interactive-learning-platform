@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { ArrowRight, LockKeyhole } from "lucide-react";
+import { ArrowRight, KeyRound, LockKeyhole } from "lucide-react";
 import BrandLogo from "../../brand-logo";
 import AdminFooter from "./admin-footer";
 import AdminEmailSignIn from "./admin-email-sign-in";
@@ -22,6 +22,7 @@ type AdminLoginProps = {
 
 export default function AdminLogin({ emailLinkEnabled }: AdminLoginProps) {
   const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("LazimaIwork.AI");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [mode, setMode] = useState<LoginMode>("sign-in");
@@ -69,6 +70,12 @@ export default function AdminLogin({ emailLinkEnabled }: AdminLoginProps) {
     }
   }
 
+  function continueWithVerifiedIdentity() {
+    if (!emailLinkEnabled || !username.trim()) return;
+    setError("");
+    setMode("email-sign-in");
+  }
+
   return (
     <main className={styles.loginShell}>
       <div className={styles.loginCanvas}>
@@ -94,6 +101,24 @@ export default function AdminLogin({ emailLinkEnabled }: AdminLoginProps) {
             </div>
 
             <form className={styles.loginForm} onSubmit={handleSubmit} noValidate>
+              {emailLinkEnabled ? <div className={styles.identitySelector}>
+                <label htmlFor="administrator-username">Administrator username</label>
+                <div className={styles.identityInputRow}>
+                  <input
+                    id="administrator-username"
+                    name="username"
+                    value={username}
+                    onChange={(event) => setUsername(event.target.value)}
+                    maxLength={64}
+                    autoComplete="username"
+                    spellCheck="false"
+                  />
+                  <button type="button" onClick={continueWithVerifiedIdentity} disabled={!username.trim()}>
+                    <KeyRound size={15} aria-hidden="true" /> Continue securely
+                  </button>
+                </div>
+                <p>Use your handle to choose the account, then confirm access with its verified sign-in method. A username alone never opens the control room.</p>
+              </div> : null}
               <AdminLoginSecurityControls
                 password={password}
                 onPasswordChange={(value) => {
@@ -118,7 +143,7 @@ export default function AdminLogin({ emailLinkEnabled }: AdminLoginProps) {
             </form>
           </section>
         ) : mode === "email-sign-in" ? (
-          <AdminEmailSignIn onBack={() => setMode("sign-in")} />
+          <AdminEmailSignIn identityLabel={username.trim() || "your administrator account"} onBack={() => setMode("sign-in")} />
         ) : (
           <AdminPasswordResetGuide onReturn={() => setMode("sign-in")} />
         )}

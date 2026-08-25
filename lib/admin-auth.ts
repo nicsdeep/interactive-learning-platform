@@ -21,6 +21,10 @@ const MAX_OTP_CODE_LENGTH = 64;
 type AdminSession = {
   issuedAt: number;
   nonce: string;
+  /** Present only after a verified Supabase email sign-in. Legacy password
+   * sessions remain valid during the named-owner migration, but never expose
+   * an actor identifier to the browser. */
+  actorId?: string;
 };
 
 function secret() {
@@ -66,22 +70,31 @@ function equal(left: string, right: string) {
   return leftValue.length === rightValue.length && timingSafeEqual(leftValue, rightValue);
 }
 
+function validActorId(value: string | undefined) {
+  return Boolean(value && /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value));
+}
+
 function encode(session: AdminSession, signingSecret: string) {
-  const payload = `${session.issuedAt}.${session.nonce}`;
+  const payload = session.actorId && validActorId(session.actorId)
+    ? `${session.issuedAt}.${session.nonce}.${session.actorId}`
+    : `${session.issuedAt}.${session.nonce}`;
   return `${payload}.${sign(payload, signingSecret)}`;
 }
 
 function decode(value: string, signingSecret: string): AdminSession | undefined {
   const parts = value.split(".");
-  if (parts.length !== 3) return undefined;
+  if (parts.length !== 3 && parts.length !== 4) return undefined;
 
-  const [issuedAtRaw, nonce, signature] = parts;
+  const [issuedAtRaw, nonce, actorIdOrSignature, optionalSignature] = parts;
+  const actorId = optionalSignature ? actorIdOrSignature : undefined;
+  const signature = optionalSignature ?? actorIdOrSignature;
   const issuedAt = Number(issuedAtRaw);
   if (!Number.isSafeInteger(issuedAt) || !nonce || !signature) return undefined;
+  if (actorId && !validActorId(actorId)) return undefined;
   if (Date.now() - issuedAt > SESSION_TTL_MS || issuedAt > Date.now() + 60_000) return undefined;
 
-  const payload = `${issuedAtRaw}.${nonce}`;
-  return equal(signature, sign(payload, signingSecret)) ? { issuedAt, nonce } : undefined;
+  const payload = actorId ? `${issuedAtRaw}.${nonce}.${actorId}` : `${issuedAtRaw}.${nonce}`;
+  return equal(signature, sign(payload, signingSecret)) ? { issuedAt, nonce, actorId } : undefined;
 }
 
 export function isAdminConfigured() {
@@ -118,10 +131,10 @@ export function passwordMatches(candidate: string) {
   );
 }
 
-export function createAdminSessionValue() {
+export function createAdminSessionValue(actorId?: string) {
   const configuredSecret = secret();
   if (!configuredSecret) return undefined;
-  return encode({ issuedAt: Date.now(), nonce: randomBytes(18).toString("base64url") }, configuredSecret);
+  return encode({ issuedAt: Date.now(), nonce: randomBytes(18).toString("base64url"), actorId }, configuredSecret);
 }
 
 type AuthStorage = {
@@ -249,11 +262,16 @@ export function readAdminOtpFlowCookieValue(value: string | undefined) {
 }
 
 export async function isAdminAuthenticated() {
+  return Boolean(await getAdminSession());
+}
+
+/** Server-only identity information for the named-admin migration. */
+export async function getAdminSession() {
   const configuredSecret = secret();
-  if (!configuredSecret) return false;
+  if (!configuredSecret) return undefined;
 
   const stored = (await cookies()).get(ADMIN_COOKIE)?.value;
-  return Boolean(stored && decode(stored, configuredSecret));
+  return stored ? decode(stored, configuredSecret) : undefined;
 }
 
 export const adminCookie = {

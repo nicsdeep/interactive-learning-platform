@@ -42,9 +42,31 @@ Keep email confirmation enabled. The verified administrator account is created o
 3. Publish the updated production build.
 4. Sign in with the replacement password. Existing sessions become invalid because their signatures are tied to the previous password.
 
+## Named administration foundation
+
+The workspace now has a separate `admin_members` model, with owner,
+administrator, editor, analyst, and viewer roles; active/inactive/suspended
+states; private avatar storage; invitations; page revisions; design references;
+recommendations; and an audit trail. It is intentionally not based on the
+learner-facing `profiles.role` field.
+
+`LazimaIwork.AI` is the bootstrap owner handle. It can select the account in
+the sign-in experience, but it can never create a session by itself. A
+passwordless sign-in must still verify the configured owner inbox (or a future
+passkey), then bind the returned Supabase Auth user to an active named member.
+
+The legacy shared password session remains a narrow bootstrap fallback until
+the verified named-owner rollout is complete. It must not be repurposed as a
+multi-user login system.
+
 ## Future hardening
 
-Before adding more administrators, move authorisation to named Supabase Auth users with immutable server-checked role claims, audit actor IDs and authentication methods, apply a durable distributed rate limiter, and require TOTP MFA for privileged actions. User-editable profile fields must never grant administration access.
+Before broadening administration beyond the bootstrap owner, require every
+workspace route to use a named Supabase Auth session and immutable
+server-checked membership on every request; retire shared-password fallback;
+add durable distributed rate limiting and TOTP/passkey MFA for privileged
+actions; and revoke active sessions immediately on deactivation. User-editable
+profile fields must never grant administration access.
 
 ## Verification checklist
 

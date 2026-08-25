@@ -14,6 +14,7 @@ import {
   clearAdminRateLimit,
   recordAdminFailure,
 } from "@/lib/admin-rate-limit";
+import { syncVerifiedBootstrapOwner } from "@/lib/admin-workspace";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -79,7 +80,12 @@ export async function POST(request: Request) {
       );
     }
 
-    const session = createAdminSessionValue();
+    // The existing verified-email route is the safe bridge from the previous
+    // single-owner setup to named administrative membership. It binds only the
+    // verified Supabase user to the bootstrap owner; typing a username alone
+    // never creates an administrator session.
+    await syncVerifiedBootstrapOwner(verified.data.user.id, verified.data.user.email);
+    const session = createAdminSessionValue(verified.data.user.id);
     if (!session) return privateJson({ error: "Secure email sign-in is not available right now." }, 503);
     clearAdminRateLimit(request, "otp-verify");
     const response = privateJson({ ok: true });

@@ -8,6 +8,7 @@ import {
   isConfiguredAdminOtpUserEmail,
   readAdminOtpFlowCookieValue,
 } from "@/lib/admin-auth";
+import { syncVerifiedBootstrapOwner } from "@/lib/admin-workspace";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -52,7 +53,11 @@ export async function GET(request: Request) {
       return finish(request);
     }
 
-    return finish(request, createAdminSessionValue());
+    // Bind the named owner only after the one-time email link has been
+    // verified by Supabase. This preserves passwordless access without a
+    // guessable username becoming an admin credential.
+    await syncVerifiedBootstrapOwner(verified.data.user.id, verified.data.user.email);
+    return finish(request, createAdminSessionValue(verified.data.user.id));
   } catch {
     return finish(request);
   }

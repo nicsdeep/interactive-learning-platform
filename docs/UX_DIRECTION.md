@@ -40,6 +40,15 @@ Trussline International's mark communicates learning progress, curriculum struct
 
 Until a product area is deliberately opened, `/learn` is the holding destination for all unfinished public page routes and CTAs. The dedicated **Back to home** link is the only exception and always returns to `/`. Static assets and the location API remain available. This prevents unfinished sections from being presented as ready and gives the product owner one clear place to decide what opens next.
 
+## Administration workspace rule
+
+The control room is a product surface, not a desktop-only internal form. Its
+desktop navigation is a quiet left rail; its phone navigation is a left-side
+drawer that is no wider than the readable content it reveals. Lists become
+editable cards on small screens, not compressed tables. Every content action
+must be reviewable, and every responsive preview must show a real change before
+the user saves or publishes it.
+
 ## Source-of-truth relationship
 
 This file governs visual direction. `PRODUCT_CHARTER.md` governs product architecture and learning philosophy. Both must be checked before new UI work.

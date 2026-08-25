@@ -1,18 +1,18 @@
 import type { Metadata } from "next";
 import BrandLogo from "@/app/brand-logo";
 import { getAdminAccessMethods, isAdminAuthenticated, isAdminConfigured } from "@/lib/admin-auth";
-import { getAdminWorkspace } from "@/lib/admin-workspace";
-import AdminWorkspace from "./admin-workspace";
-import AdminLogin from "./admin-login";
-import setupStyles from "./admin-setup.module.css";
+import { getSiteBrandSettings, isSiteBrandPersistenceConfigured } from "@/lib/site-brand-settings";
+import AdminDashboard from "../admin-dashboard";
+import AdminLogin from "../admin-login";
+import setupStyles from "../admin-setup.module.css";
 
 export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
-  title: "Administration | Trussline Interactive Learning",
+  title: "Brand controls | Trussline Interactive Learning",
   robots: { index: false, follow: false, nocache: true },
 };
 
-export default async function KinyaeAdminPage() {
+export default async function BrandControlsPage() {
   const configured = isAdminConfigured();
   const authenticated = configured && await isAdminAuthenticated();
 
@@ -27,9 +27,8 @@ export default async function KinyaeAdminPage() {
     </main>;
   }
 
-  if (!authenticated) {
-    return <AdminLogin emailLinkEnabled={getAdminAccessMethods().emailLinkEnabled} />;
-  }
+  if (!authenticated) return <AdminLogin emailLinkEnabled={getAdminAccessMethods().emailLinkEnabled} />;
 
-  return <AdminWorkspace initialWorkspace={await getAdminWorkspace()} />;
+  const settings = await getSiteBrandSettings();
+  return <AdminDashboard initialLogoScale={settings.logoScale} persistenceConfigured={isSiteBrandPersistenceConfigured()} />;
 }

@@ -9,10 +9,11 @@ type EmailSignInResponse = {
 };
 
 type AdminEmailSignInProps = {
+  identityLabel?: string;
   onBack: () => void;
 };
 
-export default function AdminEmailSignIn({ onBack }: AdminEmailSignInProps) {
+export default function AdminEmailSignIn({ identityLabel, onBack }: AdminEmailSignInProps) {
   const [hasRequestedLink, setHasRequestedLink] = useState(false);
   const [code, setCode] = useState("");
   const [isRequesting, setIsRequesting] = useState(false);
@@ -94,7 +95,7 @@ export default function AdminEmailSignIn({ onBack }: AdminEmailSignInProps) {
       <div className={styles.icon} aria-hidden="true"><MailCheck size={23} /></div>
       <p className={styles.eyebrow}>Secure email sign-in</p>
       <h1 id="email-sign-in-title">Use your verified email.</h1>
-      <p className={styles.copy}>We will send a one-time sign-in link to your verified administrator inbox. Your email address remains private.</p>
+      <p className={styles.copy}>We will send a one-time sign-in link to the verified inbox for <strong>{identityLabel || "this administrator account"}</strong>. The email address remains private.</p>
 
       {!hasRequestedLink ? (
         <button className={styles.primaryButton} type="button" onClick={requestEmailLink} disabled={isRequesting}>

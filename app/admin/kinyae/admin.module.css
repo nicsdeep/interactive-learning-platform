@@ -36,6 +36,72 @@
   text-align: center;
 }
 
+.identitySelector {
+  display: grid;
+  gap: 8px;
+  padding: 13px;
+  border: 1px solid color-mix(in srgb, var(--blue) 22%, var(--line));
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--blue-soft) 42%, var(--surface));
+}
+
+.identitySelector > label {
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.identitySelector > p {
+  margin: 0;
+  color: var(--slate);
+  font-size: 11px;
+  line-height: 1.5;
+}
+
+.identityInputRow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+}
+
+.identityInputRow input {
+  min-inline-size: 0;
+  min-block-size: 40px;
+  padding: 0 10px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--ink);
+  background: var(--surface);
+  font: 400 13px var(--font-sans), Arial, sans-serif;
+}
+
+.identityInputRow button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-block-size: 40px;
+  padding: 0 10px;
+  border: 1px solid color-mix(in srgb, var(--blue) 44%, var(--line));
+  border-radius: 8px;
+  color: var(--blue);
+  background: var(--surface);
+  font: 500 11px var(--font-sans), Arial, sans-serif;
+  cursor: pointer;
+}
+
+.identityInputRow button:hover:not(:disabled) {
+  border-color: var(--blue);
+  background: var(--blue-soft);
+}
+
+.identityInputRow button:disabled { cursor: not-allowed; opacity: .52; }
+
+@media (max-width: 420px) {
+  .identityInputRow { grid-template-columns: 1fr; }
+  .identityInputRow button { inline-size: 100%; }
+}
+
 @media (max-width: 560px) {
   .adminPortrait {
     width: 78px;
@@ -484,4 +550,28 @@
   .previewGrid {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+.workspaceLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 0 11px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  color: var(--blue);
+  background: var(--surface);
+  font-size: 12px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: color 180ms var(--ease), border-color 180ms var(--ease), background 180ms var(--ease);
+}
+
+.workspaceLink:hover {
+  border-color: var(--blue);
+  background: var(--blue-soft);
+}
+
+@media (max-width: 560px) {
+  .workspaceLink { display: none; }
 }

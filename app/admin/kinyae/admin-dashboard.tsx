@@ -1,6 +1,7 @@
 "use client";
 
 import { CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Link from "next/link";
 import {
   ArrowUpRight,
   CheckCircle2,
@@ -246,6 +247,7 @@ export default function AdminDashboard({ initialLogoScale, persistenceConfigured
         <header className={styles.dashboardHeader}>
           <div className={styles.adminBrand} data-logo-surface="light"><BrandLogo /></div>
           <div className={styles.headerActions}>
+            <Link className={styles.workspaceLink} href="/admin/kinyae">Control room</Link>
             <span className={styles.protectedTag}><ShieldCheck size={14} aria-hidden="true" /> Protected controls</span>
             <button className={styles.logoutButton} type="button" onClick={logOut} disabled={isLoggingOut}>
               <LogOut size={16} aria-hidden="true" />
