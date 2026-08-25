@@ -25,6 +25,11 @@ Username / handle selected
 
 The current protected password/email setup remains a temporary bootstrap route until the named owner has completed verified Supabase enrolment. It must not be widened into a shared multi-user access method.
 
+People added during this transition receive a secure, auditable **queued**
+invitation record. They are not emailed an access link until the named-member
+authentication flow is enabled end-to-end; this prevents invitations that
+cannot safely be accepted.
+
 ## Roles
 
 - `owner` — manages all administration, including people and publishing.

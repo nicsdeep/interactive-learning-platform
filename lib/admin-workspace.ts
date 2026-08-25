@@ -531,24 +531,11 @@ export async function createWorkspaceMember(input: { username?: unknown; display
     return { ok: false as const, reason: "write_failed" as const };
   }
 
-  // Sending an invitation is intentionally best-effort. The membership record
-  // remains a reviewable invitation if the project email provider is not yet
-  // configured; the dashboard never pretends that delivery succeeded.
-  let invitationDelivery: "sent" | "queued" = "queued";
-  const callbackOrigin = process.env.NEXT_PUBLIC_SITE_URL?.trim() || "https://nick-interactive-learning.vercel.app";
-  try {
-    const response = await client.auth.admin.inviteUserByEmail(email, {
-      data: { trussline_admin_member_id: memberId, trussline_admin_role: role },
-      redirectTo: `${callbackOrigin.replace(/\/$/, "")}/admin/kinyae/auth/callback`,
-    });
-    if (!response.error && response.data.user?.id) {
-      invitationDelivery = "sent";
-      await client.from("admin_members").update({ auth_user_id: response.data.user.id }).eq("id", memberId);
-    }
-  } catch {
-    // Supabase email delivery is a deployment concern. Do not turn a saved
-    // administrator record into a false success claim when it is unavailable.
-  }
+  // An invitation is deliberately queued rather than emailed until named
+  // member authentication is complete. The current owner-only callback must
+  // never accidentally accept a new administrator, and an unusable email link
+  // would be worse than an honest pending invitation.
+  const invitationDelivery = "queued" as const;
 
   await writeAudit(client, actor.id, "admin.member.invited", "admin_member", memberId, { role, invitationDelivery });
   return { ok: true as const, invitationDelivery };
