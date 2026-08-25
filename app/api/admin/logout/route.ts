@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { adminCookie, isSameOrigin } from "@/lib/admin-auth";
+import { adminCookie, adminTrustedDeviceCookie, isSameOrigin } from "@/lib/admin-auth";
 
 export const dynamic = "force-dynamic";
 
@@ -19,5 +19,6 @@ export async function POST(request: Request) {
 
   const response = NextResponse.json({ ok: true }, { headers: privateHeaders });
   response.cookies.set(adminCookie.name, "", { ...adminCookie.options, maxAge: 0 });
+  response.cookies.set(adminTrustedDeviceCookie.name, "", { ...adminTrustedDeviceCookie.options, maxAge: 0 });
   return response;
 }

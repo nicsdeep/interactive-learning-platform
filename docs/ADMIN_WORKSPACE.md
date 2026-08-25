@@ -13,17 +13,18 @@ The administration workspace is a protected operating layer for Trussline Intera
 
 ## Access doctrine
 
-`LazimaIwork.AI` is the initial visible owner handle. It identifies the account before a verified sign-in flow; it is never a credential.
+`LazimaIwork.AI` is the initial visible owner handle. It is available as a fast sign-in choice on a browser that has already been verified with the administrator password.
 
 ```text
-Username / handle selected
-→ verified passwordless email link, OTP, passkey, or approved password method
-→ authenticated Supabase user
-→ active named member + role check on the server
-→ authorised workspace action
+Password sign-in on a personal browser
+→ eight-hour administrator session + 30-day HttpOnly trusted-device marker
+→ later username sign-in on that same browser
+→ fresh eight-hour administrator session
 ```
 
-The current protected password/email setup remains a temporary bootstrap route until the named owner has completed verified Supabase enrolment. It must not be widened into a shared multi-user access method.
+The username is not sufficient on a new browser or device. It must be paired with the private trusted-device marker, which is issued only after a successful password sign-in. The sign-in screen contains no email-link or email-code path.
+
+The current protected password setup remains a narrow bootstrap route until the named owner has completed a future passkey or named-member rollout. It must not be widened into a shared multi-user access method.
 
 People added during this transition receive a secure, auditable **queued**
 invitation record. They are not emailed an access link until the named-member

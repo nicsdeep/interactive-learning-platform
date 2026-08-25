@@ -575,3 +575,171 @@
 @media (max-width: 560px) {
   .workspaceLink { display: none; }
 }
+
+/* Two simple sign-in paths: the selected method expands into one focused,
+   touch-friendly control group without creating a second mobile layout. */
+.loginMethodPicker {
+  min-inline-size: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.loginMethodPicker legend {
+  margin-bottom: 9px;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.loginMethodChoices {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 7px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--paper);
+}
+
+.loginMethodChoice {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-block-size: 44px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--slate);
+  background: transparent;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: color 180ms var(--ease), background 180ms var(--ease), border-color 180ms var(--ease), box-shadow 180ms var(--ease);
+}
+
+.loginMethodChoice input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loginMethodChoice[data-selected] {
+  border-color: color-mix(in srgb, var(--blue) 25%, var(--line));
+  color: var(--blue);
+  background: var(--surface);
+  box-shadow: 0 1px 2px rgba(12, 26, 46, .05);
+}
+
+.loginMethodChoice:has(input:focus-visible) {
+  outline: 3px solid color-mix(in srgb, var(--blue) 28%, transparent);
+  outline-offset: 2px;
+}
+
+.usernameMethod,
+.passwordMethod {
+  display: grid;
+  gap: 12px;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--blue-soft) 28%, var(--surface));
+  animation: admin-method-enter 180ms var(--ease) both;
+}
+
+.methodKicker {
+  margin: 0;
+  color: var(--blue);
+  font: 500 10px/1.25 var(--font-code), monospace;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.usernameMethod h2,
+.passwordMethod h2 {
+  margin: 4px 0 0;
+  color: var(--ink);
+  font-family: var(--font-display), Georgia, serif;
+  font-size: 24px;
+  font-weight: 400;
+  letter-spacing: -.02em;
+  line-height: 1.1;
+}
+
+.usernameMethod > label {
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.usernameInput {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-block-size: 50px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--muted);
+  background: var(--surface);
+  transition: border-color 180ms var(--ease), box-shadow 180ms var(--ease);
+}
+
+.usernameInput:focus-within {
+  border-color: var(--blue);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--blue) 14%, transparent);
+}
+
+.usernameInput input {
+  min-inline-size: 0;
+  flex: 1;
+  border: 0;
+  outline: 0;
+  color: var(--ink);
+  background: transparent;
+  font: 400 15px var(--font-sans), Arial, sans-serif;
+}
+
+.usernameInput input::placeholder { color: var(--muted); }
+
+.usernameMethod > p {
+  margin: 0;
+  color: var(--slate);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.passwordMethod .securityControls {
+  margin-top: 1px;
+}
+
+.trustedDeviceNote {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  margin: 0;
+  color: var(--slate);
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.trustedDeviceNote svg { flex: none; margin-top: 2px; color: var(--teal); }
+
+@keyframes admin-method-enter {
+  from { opacity: .4; transform: translateY(-3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 560px) {
+  .usernameMethod,
+  .passwordMethod { padding: 14px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loginMethodChoice,
+  .usernameInput { transition: none; }
+  .usernameMethod,
+  .passwordMethod { animation: none; }
+}

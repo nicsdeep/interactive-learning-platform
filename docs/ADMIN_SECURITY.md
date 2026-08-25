@@ -2,25 +2,24 @@
 
 ## Current access model
 
-The private Trussline control room supports two deliberate ways to sign in:
+The private Trussline control room supports two deliberate sign-in choices:
 
 - A deployment-managed administrator password held only in encrypted project settings.
-- A one-time email link sent only to the single verified administrator email held in encrypted project settings.
+- A username convenience path on a personal browser that has previously completed a successful password sign-in.
 
 No password, authentication token, or service credential belongs in source
-control, browser storage, or chat. The owner sign-in email allowlist remains in
-encrypted project settings. A future member invitation may retain the
-recipient's verified email only as private, service-only operational data in
-Supabase; it is never public, browser-readable, or used as a credential.
+control, browser storage, or chat. The trusted-device marker is HttpOnly and
+signed server-side; page JavaScript cannot read or forge it. A future member
+invitation may retain the recipient's verified email only as private,
+service-only operational data in Supabase; it is never public,
+browser-readable, or used as a credential.
 
 ## Protections in this release
 
 - HTTP-only, secure administrator session cookie with `SameSite=Strict` and an eight-hour maximum lifetime.
+- An HttpOnly, server-signed trusted-device marker with `SameSite=Strict` and a 30-day maximum lifetime. It is issued only after a successful password sign-in and is bound to the current owner handle.
 - Timing-safe password comparison, generic sign-in failures, password-length limits, and same-origin checks on every administrative mutation.
-- Private-area security headers, `no-store` responses, and short-burst throttles for password, email-link, and verification-code attempts.
-- An encrypted, callback-only, 15-minute PKCE verifier cookie for email sign-in. The verifier is never readable by page JavaScript.
-- Server-side allowlisting: the email-link endpoint never accepts an email address from the browser, and the callback issues an administrator session only after the returned authenticated email exactly matches the protected configured address.
-- Single-use email links, a graceful expired-link message, and an optional code entry path when the mail template includes a code.
+- Private-area security headers, `no-store` responses, and short-burst throttles for password and username sign-in attempts.
 - Keyboard-accessible show/hide password control, Caps Lock feedback that appears only when the browser reports it is on, password-manager-compatible fields, and mobile-safe layouts.
 
 The in-process throttle is an additional safeguard, not a substitute for a durable project-level rate limit or WAF when access is broadened beyond one administrator.
@@ -30,14 +29,7 @@ The in-process throttle is an additional safeguard, not a substitute for a durab
 Configure these values only in the project’s encrypted environment settings:
 
 1. `TRUSSLINE_ADMIN_PASSWORD` — a unique administrator passphrase.
-2. `TRUSSLINE_ADMIN_OTP_EMAIL` — the single verified inbox permitted to receive email sign-in links.
-3. `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` — the project’s public Supabase connection values. A legacy `NEXT_PUBLIC_SUPABASE_ANON_KEY` remains supported when needed.
-
-In Supabase Authentication, set the live site URL and allowlist the exact production callback:
-
-`https://nick-interactive-learning.vercel.app/admin/kinyae/auth/callback`
-
-Keep email confirmation enabled. The verified administrator account is created only when that inbox itself requests and confirms its first secure link; no test email should be sent merely to configure this feature.
+2. `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` — project connection values used by the administrative workspace. A legacy `NEXT_PUBLIC_SUPABASE_ANON_KEY` remains supported when needed.
 
 ## Password rotation
 
@@ -54,10 +46,12 @@ states; private avatar storage; invitations; page revisions; design references;
 recommendations; and an audit trail. It is intentionally not based on the
 learner-facing `profiles.role` field.
 
-`LazimaIwork.AI` is the bootstrap owner handle. It can select the account in
-the sign-in experience, but it can never create a session by itself. A
-passwordless sign-in must still verify the configured owner inbox (or a future
-passkey), then bind the returned Supabase Auth user to an active named member.
+`LazimaIwork.AI` is the bootstrap owner handle. On a browser that previously
+completed password sign-in, entering the handle can issue a fresh session
+without asking for the password again. On a new browser or device, the same
+handle cannot create a session: the password must be used once to establish a
+private trusted-device marker. A future passkey rollout can replace this
+bootstrap method with named-member authentication.
 
 The legacy shared password session remains a narrow bootstrap fallback until
 the verified named-owner rollout is complete. It must not be repurposed as a
@@ -76,7 +70,6 @@ profile fields must never grant administration access.
 
 - An unauthenticated request cannot load or update the control room.
 - A cross-site request cannot create or clear an administrator session.
-- Failed password and code entries are throttled without confirming whether an account is valid.
-- The email-link endpoint has no browser-controlled recipient field.
-- An expired or used email link returns the user to a clear recovery message.
-- The portrait, password controls, footer, focus states, and recovery paths remain usable at 320px width.
+- Failed password and username entries are throttled without confirming whether an account is valid.
+- The username convenience endpoint requires both the exact owner handle and a valid private trusted-device marker.
+- The portrait, username/password controls, footer, and focus states remain usable at 320px width.

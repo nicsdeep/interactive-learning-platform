@@ -1,10 +1,8 @@
 "use client";
 
 import { KeyboardEvent, useId, useMemo, useState } from "react";
-import { CircleHelp, Eye, EyeOff, KeyRound, ShieldCheck } from "lucide-react";
+import { CircleHelp, Eye, EyeOff, KeyRound } from "lucide-react";
 import styles from "./admin-login-security-controls.module.css";
-
-export type AdminRecoveryAction = "one-time-code" | "reset-password";
 
 type AdminLoginSecurityControlsProps = {
   /** The password value remains owned by the surrounding login form. */
@@ -15,11 +13,6 @@ type AdminLoginSecurityControlsProps = {
   label?: string;
   /** Lets the parent form attach its server-side error message to this field. */
   errorId?: string;
-  /** Recovery actions are individually enabled only when their secure path exists. */
-  onRecoveryAction?: (action: AdminRecoveryAction) => void;
-  oneTimeCodeEnabled?: boolean;
-  passwordResetEnabled?: boolean;
-  recoveryMessage?: string;
 };
 
 export default function AdminLoginSecurityControls({
@@ -29,17 +22,11 @@ export default function AdminLoginSecurityControls({
   inputId = "admin-password",
   label = "Administrator password",
   errorId,
-  onRecoveryAction,
-  oneTimeCodeEnabled = false,
-  passwordResetEnabled = false,
-  recoveryMessage = "One-time codes and password reset will be available after an administrator recovery method is configured.",
 }: AdminLoginSecurityControlsProps) {
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [capsLockOn, setCapsLockOn] = useState(false);
   const helpId = useId();
   const capsLockId = useId();
-  const recoveryHelpId = useId();
-  const recoveryAvailable = Boolean(onRecoveryAction) && !disabled;
 
   const describedBy = useMemo(
     () => [helpId, capsLockOn ? capsLockId : undefined, errorId].filter(Boolean).join(" ") || undefined,
@@ -48,12 +35,6 @@ export default function AdminLoginSecurityControls({
 
   function updateCapsLock(event: KeyboardEvent<HTMLInputElement>) {
     setCapsLockOn(event.getModifierState("CapsLock"));
-  }
-
-  function requestRecovery(action: AdminRecoveryAction) {
-    const isEnabled = action === "one-time-code" ? oneTimeCodeEnabled : passwordResetEnabled;
-    if (!recoveryAvailable || !isEnabled) return;
-    onRecoveryAction?.(action);
   }
 
   return (
@@ -114,21 +95,6 @@ export default function AdminLoginSecurityControls({
         </div>
       </details>
 
-      <div className={styles.recovery} aria-describedby={recoveryHelpId}>
-        <div className={styles.recoveryHeading}>
-          <ShieldCheck size={16} aria-hidden="true" />
-          <span>Need another way in?</span>
-        </div>
-        <div className={styles.recoveryActions}>
-          <button type="button" onClick={() => requestRecovery("one-time-code")} disabled={!recoveryAvailable || !oneTimeCodeEnabled}>
-            Use secure email sign-in
-          </button>
-          <button type="button" onClick={() => requestRecovery("reset-password")} disabled={!recoveryAvailable || !passwordResetEnabled}>
-            Reset password
-          </button>
-        </div>
-        <p id={recoveryHelpId} className={styles.recoveryMessage} aria-live="polite">{recoveryMessage}</p>
-      </div>
     </section>
   );
 }

@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import BrandLogo from "@/app/brand-logo";
-import { getAdminAccessMethods, isAdminAuthenticated, isAdminConfigured } from "@/lib/admin-auth";
+import { getAdminSession, isAdminConfigured } from "@/lib/admin-auth";
 import { getSiteBrandSettings, isSiteBrandPersistenceConfigured } from "@/lib/site-brand-settings";
-import { getBootstrapOwnerIdentity } from "@/lib/admin-workspace";
+import { getBootstrapOwnerIdentity, hasAdminWorkspacePermission } from "@/lib/admin-workspace";
 import AdminDashboard from "../admin-dashboard";
 import AdminLogin from "../admin-login";
 import setupStyles from "../admin-setup.module.css";
@@ -15,7 +15,8 @@ export const metadata: Metadata = {
 
 export default async function BrandControlsPage() {
   const configured = isAdminConfigured();
-  const authenticated = configured && await isAdminAuthenticated();
+  const session = configured ? await getAdminSession() : undefined;
+  const authenticated = Boolean(session && await hasAdminWorkspacePermission(session.actorId, "profile"));
 
   if (!configured) {
     return <main className={setupStyles.setupPage}>
@@ -30,7 +31,7 @@ export default async function BrandControlsPage() {
 
   if (!authenticated) {
     const identity = await getBootstrapOwnerIdentity();
-    return <AdminLogin emailLinkEnabled={getAdminAccessMethods().emailLinkEnabled} initialUsername={identity.username} />;
+    return <AdminLogin initialUsername={identity.username} />;
   }
 
   const settings = await getSiteBrandSettings();

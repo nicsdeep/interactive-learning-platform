@@ -149,16 +149,17 @@ export function isAdminWorkspacePersistenceConfigured() {
   return Boolean(serviceSupabaseConfig());
 }
 
-/**
- * Named sessions are checked against an active member on every new workspace
- * route. A password-only session is the narrowly-scoped legacy bootstrap path
- * retained until the verified owner completes named-owner enrolment.
- */
+/** Every current workspace route is checked against an active member record.
+ * Actorless sessions are permitted only when persistence is genuinely absent
+ * during first-time local setup, never in the deployed workspace. */
 export async function hasAdminWorkspacePermission(authUserId: string | undefined, permission: AdminWorkspacePermission) {
-  if (!authUserId) return true;
+  if (!authUserId) return !isAdminWorkspacePersistenceConfigured();
   const client = adminClient();
   if (!client) return false;
-  const result = await client.from("admin_members").select("role, status").eq("auth_user_id", authUserId).maybeSingle();
+  const result = await client.from("admin_members")
+    .select("role, status")
+    .or(`auth_user_id.eq.${authUserId},id.eq.${authUserId}`)
+    .maybeSingle();
   const member = result.data as { role?: AdminRole; status?: AdminMemberStatus } | null;
   if (result.error || !member || member.status !== "active" || !member.role) return false;
   if (member.role === "owner" || member.role === "administrator") return true;
@@ -466,27 +467,17 @@ async function bootstrapOwner(client: SupabaseClient) {
 /** Safe for the sign-in screen: exposes the visible handle only, never email,
  * role data, a session, or any other membership detail. */
 export async function getBootstrapOwnerIdentity() {
-  const client = adminClient();
-  if (!client) return { username: "LazimaIwork.AI" };
-  const owner = await bootstrapOwner(client);
+  const owner = await getBootstrapOwnerSignInIdentity();
   return { username: owner?.username || "LazimaIwork.AI" };
 }
 
-export async function syncVerifiedBootstrapOwner(authUserId: string, email: string | null | undefined) {
+/** Private sign-in data for server routes. This never reaches the browser. */
+export async function getBootstrapOwnerSignInIdentity() {
   const client = adminClient();
-  if (!client || !authUserId) return undefined;
+  if (!client) return undefined;
   const owner = await bootstrapOwner(client);
   if (!owner) return undefined;
-
-  const result = await client.from("admin_members").update({
-    auth_user_id: authUserId,
-    email: email?.trim().toLocaleLowerCase("en-US") || owner.email,
-    status: "active",
-    last_signed_in_at: new Date().toISOString(),
-  }).eq("id", owner.id).select("id").maybeSingle();
-  if (result.error || !result.data) return undefined;
-  await writeAudit(client, owner.id, "admin.owner.verified", "admin_member", owner.id, { method: "verified_email" });
-  return owner.id;
+  return { id: owner.id, username: owner.username, status: owner.status };
 }
 
 export async function updateBootstrapOwnerProfile(input: { username?: unknown; displayName?: unknown }) {

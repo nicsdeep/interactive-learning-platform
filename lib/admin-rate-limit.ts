@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 
-type AdminRateLimitScope = "password" | "otp-request" | "otp-verify";
+type AdminRateLimitScope = "password" | "username";
 
 type RateLimitRule = {
   maxAttempts: number;
@@ -20,8 +20,7 @@ export type RateLimitResult = {
 
 const rules: Record<AdminRateLimitScope, RateLimitRule> = {
   password: { maxAttempts: 5, windowMs: 15 * 60 * 1000 },
-  "otp-request": { maxAttempts: 3, windowMs: 15 * 60 * 1000 },
-  "otp-verify": { maxAttempts: 5, windowMs: 15 * 60 * 1000 },
+  username: { maxAttempts: 8, windowMs: 15 * 60 * 1000 },
 };
 
 const attempts = new Map<string, RateLimitEntry>();
@@ -79,30 +78,6 @@ export function recordAdminFailure(request: Request, scope: AdminRateLimitScope)
   return entry.lockedUntil
     ? { allowed: false, retryAfterSeconds: retryAfterSeconds(entry.lockedUntil, now) }
     : { allowed: true };
-}
-
-/** Use this when every request is a sensitive delivery attempt, such as an OTP email. */
-export function consumeAdminRateLimit(request: Request, scope: AdminRateLimitScope): RateLimitResult {
-  const current = checkAdminRateLimit(request, scope);
-  if (!current.allowed) return current;
-
-  const now = Date.now();
-  const key = clientFingerprint(request, scope);
-  const rule = rules[scope];
-  const previous = attempts.get(key);
-  const entry = !previous || previous.startedAt + rule.windowMs <= now
-    ? { attempts: 0, startedAt: now }
-    : previous;
-
-  entry.attempts += 1;
-  if (entry.attempts > rule.maxAttempts) {
-    entry.lockedUntil = now + rule.windowMs;
-    attempts.set(key, entry);
-    return { allowed: false, retryAfterSeconds: retryAfterSeconds(entry.lockedUntil, now) };
-  }
-
-  attempts.set(key, entry);
-  return { allowed: true };
 }
 
 export function clearAdminRateLimit(request: Request, scope: AdminRateLimitScope) {
