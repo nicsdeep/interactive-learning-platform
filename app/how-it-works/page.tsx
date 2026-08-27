@@ -30,6 +30,6 @@ export default function HowItWorksPage() {
       </div>
     </section>
     <section className="experience-principles"><p>WHAT WE WILL NOT DO</p><div><h2>No generic chatbot. No ticking boxes for the sake of it.</h2><span>The companion is shaped by the learner’s current objective, their attempts, and the work they have made. Progress means understanding that can travel to a new situation.</span></div></section>
-    <section className="experience-cta"><div><p>TRUSSLINE</p><h2>Interactive learning<br />for what comes next.</h2></div><Link href="/learn">Join the waitlist <ArrowRight size={16} /></Link></section>
+    <section className="experience-cta"><div><p>TRUSSLINE</p><h2>Interactive learning<br />for what comes next.</h2></div><Link href="/about">Read more <ArrowRight size={16} /></Link></section>
   </main>;
 }

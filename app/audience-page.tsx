@@ -6,7 +6,7 @@ type AudiencePageProps = { eyebrow: string; title: React.ReactNode; lead: string
 
 export default function AudiencePage({ eyebrow, title, lead, proof, panels, principles, closing }: AudiencePageProps) {
   return <main className="audience-page">
-    <header className="audience-nav"><div className="audience-brand"><BrandLogo /></div><Link href="/learn">Join the waitlist <ArrowRight size={15} /></Link></header>
+    <header className="audience-nav"><div className="audience-brand"><BrandLogo /></div><Link href="/about">Read more <ArrowRight size={15} /></Link></header>
     <section className="audience-hero"><p>{eyebrow}</p><h1>{title}</h1><span>{lead}</span></section>
     <section className="audience-proof"><b>THE PROMISE</b><p>{proof}</p></section>
     <section className="audience-panels">{panels.map((panel, index) => <article key={panel.title}><b>0{index + 1}</b><h2>{panel.title}</h2><p>{panel.text}</p></article>)}</section>

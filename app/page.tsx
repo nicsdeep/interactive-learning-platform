@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import BrandLogo from "./brand-logo";
-import { ArrowRight, BookOpen, ChevronDown, Clock3, Compass, Globe2, GraduationCap, Info, Library, MapPin, Menu, School, Search, Sparkles, X } from "lucide-react";
+import PublicNavigation from "./public-navigation";
+import { ArrowRight, ChevronDown, Clock3, Globe2, MapPin, Search, Sparkles, X } from "lucide-react";
 import { countries, getEmojiFlag, type TCountryCode } from "countries-list";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -124,7 +124,6 @@ export default function HomePage() {
   const [countryOpen, setCountryOpen] = useState(false);
   const [countrySearch, setCountrySearch] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [timeZone, setTimeZone] = useState("");
   const [localTime, setLocalTime] = useState("");
   const manualSelectionRef = useRef(false);
@@ -210,22 +209,13 @@ export default function HomePage() {
   const displayLocalTime = localTime || localTimeLabel(timeZone);
 
   return <main className="home-refined">
-    <header className="home-nav">
-      <div className="home-brand"><BrandLogo /></div>
-      <button className="home-menu-toggle" onClick={() => setMenuOpen(!menuOpen)} aria-label={menuOpen ? "Close navigation" : "Open navigation"} aria-expanded={menuOpen}>{menuOpen ? <X /> : <Menu />}</button>
-      <nav className={menuOpen ? "is-open" : ""} aria-label="Primary navigation">
-        <Link href="/how-it-works"><Compass className="mobile-nav-icon" size={18} /><span>How it works</span><ChevronDown size={14} /></Link>
-        <Link href="/curricula"><BookOpen className="mobile-nav-icon" size={18} /><span>Curricula</span><ChevronDown size={14} /></Link>
-        <Link href="/learn"><GraduationCap className="mobile-nav-icon" size={18} /><span>For learners</span><ChevronDown size={14} /></Link>
-        <Link href="/schools"><School className="mobile-nav-icon" size={18} /><span>For schools</span><ChevronDown size={14} /></Link>
-        <Link href="/families"><Library className="mobile-nav-icon" size={18} /><span>For families</span><ChevronDown size={14} /></Link>
-        <Link href="/about"><Info className="mobile-nav-icon" size={18} /><span>About Trussline</span><ChevronDown size={14} /></Link>
-      </nav>
-      <div className="home-nav-actions"><button className="home-search" onClick={() => setSearchOpen(!searchOpen)}><Search size={18} /> <span>Search</span></button><button className="home-region-button" onClick={() => document.getElementById("region-selector")?.scrollIntoView({ behavior: "smooth" })}><Globe2 size={18} /> <span>Select region</span><ChevronDown size={15} /></button><Link href="/learn" className="home-primary">Join the waitlist <ArrowRight size={17} /></Link></div>
-      {searchOpen && <div className="home-search-popover"><Search size={17} /><input autoFocus aria-label="Search Trussline" placeholder="Search Trussline" /><button onClick={() => setSearchOpen(false)} aria-label="Close search"><X size={16} /></button></div>}
-    </header>
+    <PublicNavigation active="home" controls={<>
+      <button className="home-search" type="button" onClick={() => setSearchOpen((open) => !open)} aria-expanded={searchOpen}><Search size={18} /> <span>Search</span></button>
+      <button className="home-region-button" type="button" onClick={() => document.getElementById("region-selector")?.scrollIntoView({ behavior: "smooth" })}><Globe2 size={18} /> <span>Select region</span><ChevronDown size={15} /></button>
+      {searchOpen && <div className="home-search-popover public-nav-search-popover"><Search size={17} /><input autoFocus aria-label="Search Trussline" placeholder="Search Trussline" /><button type="button" onClick={() => setSearchOpen(false)} aria-label="Close search"><X size={16} /></button></div>}
+    </>} />
     <section className="home-hero">
-      <div className="home-copy"><p className="home-eyebrow"><Sparkles size={15} /> INTERACTIVE LEARNING, GLOBALLY</p><h1>Learning that<br />meets the world<br /><em>where it is.</em></h1><p>Trussline makes learning active, responsive, and grounded in the curriculum each learner knows—so they can build confidence through real understanding.</p><div className="home-hero-actions"><Link href="/learn" className="home-primary">Join the waitlist <ArrowRight size={17} /></Link><Link href="/how-it-works" className="home-secondary">Explore how it works <ArrowRight size={16} /></Link></div></div>
+      <div className="home-copy"><p className="home-eyebrow"><Sparkles size={15} /> INTERACTIVE LEARNING, GLOBALLY</p><h1>Learning that<br />meets the world<br /><em>where it is.</em></h1><p>Trussline makes learning active, responsive, and grounded in the curriculum each learner knows—so they can build confidence through real understanding.</p><div className="home-hero-actions"><Link href="/how-it-works" className="home-primary">Discover how it works <ArrowRight size={17} /></Link><Link href="/curricula" className="home-secondary">Explore curricula <ArrowRight size={16} /></Link></div></div>
       <div className="world-globe" aria-label="A connected global learning network"><div className="globe-map" /><i className="globe-longitude one" /><i className="globe-longitude two" /><i className="globe-longitude three" /><i className="globe-latitude one" /><i className="globe-latitude two" /><i className="globe-latitude three" /><b className="globe-marker north" /><b className="globe-marker asia" /><b className="globe-marker oceania" /></div>
     </section>
     <section className="region-selector" id="region-selector" aria-labelledby="learning-region-title">

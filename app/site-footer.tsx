@@ -39,10 +39,10 @@ export default function SiteFooter() {
           </nav>
 
           <section className="site-footer-column site-footer-global" aria-labelledby="footer-global-title">
-            <h2 id="footer-global-title">Keep in touch</h2>
+            <h2 id="footer-global-title">Keep exploring</h2>
             <p><Globe2 size={15} aria-hidden="true" /> Learning internationally</p>
-            <span>See what we are building next.</span>
-            <Link href="/learn" className="site-footer-cta">Join the waitlist <ArrowUpRight size={16} /></Link>
+            <span>See how Trussline is being shaped around meaningful learning.</span>
+            <Link href="/about" className="site-footer-cta">Read more <ArrowUpRight size={16} /></Link>
           </section>
         </div>
 

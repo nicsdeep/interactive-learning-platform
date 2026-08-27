@@ -26,6 +26,11 @@ Trussline International's mark communicates learning progress, curriculum struct
 - Mobile is a first-class acceptance criterion for every change: no horizontal overflow, cropped content, overlapping controls, or unreadably small brand elements. Verify the 360px viewport before each production push.
 - Any visual control must update the relevant on-page preview on every input event, before autosave or a manual save. A percentage readout alone is never sufficient. Preview changes must use the same responsive sizing variables as the live product: the mark may grow, but device width, navigation height, and footer geometry must never grow with it.
 - Public headers remain sticky while scrolling. On mobile, navigation opens as a left-aligned panel below the header with clear touch targets.
+- Public navigation is a learning guide, not a row of dead labels: each top-level item reveals real, clickable destinations on hover, focus, or keyboard activation. Phone navigation uses compact expandable rows inside the left-side drawer.
+- Public-facing copy speaks to learners, families, and educators. Do not expose implementation language such as engines, layers, architecture, deployments, or developer settings in public content.
+- Avoid repeating the same call to action. The public navigation uses **Read more**, while a launch-update invitation appears only where it genuinely helps someone decide to stay informed.
+- Prefer editorial lines, progressive stories, and purposeful interaction over grids of static marketing cards. Animated counters must describe real product scope or a clearly labelled learning model—not invented traction. Motion always has a reduced-motion alternative.
+- A moving learning visual must be labelled truthfully: use a real, captioned video when a video asset exists; otherwise call it an interactive visual or learning demonstration, provide a pause control, and never imply that an animation is live AI.
 - Responsive from small phones through desktop; no desktop-only dashboard assumptions.
 - Use blue for navigation, progress, and primary action; preserve clear contrast and keyboard focus.
 - Learner pages are activity-first: active learning canvas, evidence, companion, and next step.
