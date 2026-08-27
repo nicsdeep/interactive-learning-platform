@@ -13,6 +13,7 @@ import "./audience.css";
 import "./trussline-theme.css";
 import "./home-refined.css";
 import "./location-panel.css";
+import "./about/about.css";
 import "./site-footer.css";
 import "./brand-logo.css";
 import "./admin-brand-settings.css";

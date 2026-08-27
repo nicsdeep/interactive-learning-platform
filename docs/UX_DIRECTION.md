@@ -38,7 +38,7 @@ Trussline International's mark communicates learning progress, curriculum struct
 
 ## Public launch gate
 
-Until a product area is deliberately opened, `/learn` is the holding destination for all unfinished public page routes and CTAs. The dedicated **Back to home** link is the only exception and always returns to `/`. Static assets and the location API remain available. This prevents unfinished sections from being presented as ready and gives the product owner one clear place to decide what opens next.
+Until a product area is deliberately opened, `/learn` is the holding destination for unfinished public product routes and CTAs. The public Home (`/`) and About (`/about`) pages are deliberate exceptions; the dedicated **Back to home** link always returns to `/`. Static assets and the location API remain available. This prevents unfinished sections from being presented as ready and gives the product owner one clear place to decide what opens next.
 
 ## Administration workspace rule
 

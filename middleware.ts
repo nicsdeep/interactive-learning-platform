@@ -1,8 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 /**
- * Temporary public launch gate. Until a product area is explicitly opened,
- * every public route resolves to the single Trussline launch-updates page.
+ * Temporary public launch gate. The Home and About pages are the deliberate
+ * public-facing product story; unfinished product areas resolve to the single
+ * Trussline launch-updates page.
  */
 export function middleware(request: NextRequest) {
   if (request.nextUrl.pathname === "/") return NextResponse.next();
@@ -14,5 +15,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/((?!learn(?:/|$)|admin(?:/|$)|api(?:/|$)|_next/static|_next/image|favicon.ico|.*\\..*).*)"],
+  matcher: ["/((?!learn(?:/|$)|about(?:/|$)|admin(?:/|$)|api(?:/|$)|_next/static|_next/image|favicon.ico|.*\\..*).*)"],
 };

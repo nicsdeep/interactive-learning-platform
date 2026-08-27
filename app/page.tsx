@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import BrandLogo from "./brand-logo";
-import { ArrowRight, BookOpen, CheckCircle2, ChevronDown, Clock3, Compass, Globe2, GraduationCap, Info, Library, MapPin, Menu, School, Search, Sparkles, X } from "lucide-react";
+import { ArrowRight, BookOpen, ChevronDown, Clock3, Compass, Globe2, GraduationCap, Info, Library, MapPin, Menu, School, Search, Sparkles, X } from "lucide-react";
 import { countries, getEmojiFlag, type TCountryCode } from "countries-list";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
@@ -219,7 +219,7 @@ export default function HomePage() {
         <Link href="/learn"><GraduationCap className="mobile-nav-icon" size={18} /><span>For learners</span><ChevronDown size={14} /></Link>
         <Link href="/schools"><School className="mobile-nav-icon" size={18} /><span>For schools</span><ChevronDown size={14} /></Link>
         <Link href="/families"><Library className="mobile-nav-icon" size={18} /><span>For families</span><ChevronDown size={14} /></Link>
-        <Link href="/learn"><Info className="mobile-nav-icon" size={18} /><span>About Trussline</span><ChevronDown size={14} /></Link>
+        <Link href="/about"><Info className="mobile-nav-icon" size={18} /><span>About Trussline</span><ChevronDown size={14} /></Link>
       </nav>
       <div className="home-nav-actions"><button className="home-search" onClick={() => setSearchOpen(!searchOpen)}><Search size={18} /> <span>Search</span></button><button className="home-region-button" onClick={() => document.getElementById("region-selector")?.scrollIntoView({ behavior: "smooth" })}><Globe2 size={18} /> <span>Select region</span><ChevronDown size={15} /></button><Link href="/learn" className="home-primary">Join the waitlist <ArrowRight size={17} /></Link></div>
       {searchOpen && <div className="home-search-popover"><Search size={17} /><input autoFocus aria-label="Search Trussline" placeholder="Search Trussline" /><button onClick={() => setSearchOpen(false)} aria-label="Close search"><X size={16} /></button></div>}
@@ -244,7 +244,6 @@ export default function HomePage() {
         <label><span>CONTINENT</span><select value={continent} onChange={(event) => chooseContinent(event.target.value)} aria-label="Select continent"><option value="" disabled>Choose a continent</option>{continents.map((item) => <option key={item.code} value={item.code}>{item.name}</option>)}</select></label>
         <div className="country-picker"><span>COUNTRY</span><button type="button" onClick={() => setCountryOpen(!countryOpen)} aria-expanded={countryOpen} aria-haspopup="listbox"><CountryFlag code={country || undefined} className="country-button-flag" /><b>{country ? selectedCountry : "Choose a country"}</b><ChevronDown size={16} /></button>{countryOpen && <><button className="country-options-backdrop" type="button" aria-label="Close country picker" onClick={() => setCountryOpen(false)} /><div className="country-options" role="listbox" aria-label="Countries"><div className="country-options-search"><Search size={16} /><input autoFocus placeholder="Search any country" value={countrySearch} onChange={(event) => setCountrySearch(event.target.value)} onKeyDown={(event) => { if (event.key === "Escape") setCountryOpen(false); }} aria-label="Search countries" /><button type="button" onClick={() => setCountryOpen(false)} aria-label="Close country picker"><X size={16} /></button></div><div className="country-options-list">{matchingCountries.map((item) => <button type="button" key={item.code} role="option" aria-selected={item.code === country} onClick={() => chooseCountry(item.code)}><CountryFlag code={item.code} className="country-option-flag" /><b>{item.name}</b><small>{continents.find((entry) => entry.code === item.continent)?.name}</small></button>)}</div></div></>}</div>
       </div>
-      <div className="region-note"><CheckCircle2 size={17} /><p>Your learning region helps tailor what you see first. You can change it any time.</p></div>
     </section>
     <section className="home-context"><p>BUILT FOR LOCAL CURRICULA</p><div><span>Kenya CBE/CBC</span><span>USA standards</span><span>England National Curriculum</span><span>Understanding that lasts</span><span>Curriculum intelligence</span></div></section>
   </main>;

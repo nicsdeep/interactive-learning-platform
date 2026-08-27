@@ -31,6 +31,7 @@ export default function SiteFooter() {
 
           <nav className="site-footer-column" aria-label="Explore Trussline">
             <h2>Explore</h2>
+            <Link href="/about">About Trussline</Link>
             <Link href="/how-it-works">Our approach</Link>
             <Link href="/curricula">Programs &amp; subjects</Link>
             <Link href="/families">For families</Link>
