@@ -32,9 +32,11 @@ import type {
   AdminRole,
   AdminWorkspace,
   DesignReferenceProvider,
+  DesignTargetSurface,
   SitePageStatus,
   SiteSectionType,
 } from "@/lib/admin-workspace";
+import type { DesignStudioProposal } from "@/lib/design-studio";
 import styles from "./admin-workspace.module.css";
 
 type WorkspaceArea = "overview" | "profile" | "people" | "pages" | "design" | "guidance";
@@ -83,6 +85,80 @@ const sectionTypes: Array<{ value: SiteSectionType; label: string }> = [
   { value: "footer", label: "Footer" },
 ];
 
+const designSourceProfiles: Record<DesignReferenceProvider, {
+  label: string;
+  description: string;
+  briefPlaceholder: string;
+  urlPlaceholder: string;
+  titlePlaceholder: string;
+  purposePlaceholder: string;
+  tagsPlaceholder: string;
+}> = {
+  pinterest: {
+    label: "Pinterest",
+    description: "Search visual directions and save the Pin or Board you choose.",
+    briefPlaceholder: "e.g. A warm editorial mobile dashboard for international learners, with clear progress and calm navigation.",
+    urlPlaceholder: "Paste the Pinterest Pin or Board link you chose",
+    titlePlaceholder: "e.g. Pinterest direction · calm mobile hierarchy",
+    purposePlaceholder: "What should Trussline learn from this reference?",
+    tagsPlaceholder: "mobile, learning, navigation",
+  },
+  behance: {
+    label: "Behance",
+    description: "Search full case studies and save the original project link.",
+    briefPlaceholder: "e.g. An international learning platform case study with a confident editorial home page.",
+    urlPlaceholder: "Paste the Behance project link you chose",
+    titlePlaceholder: "e.g. Behance direction · editorial learning case study",
+    purposePlaceholder: "Which product or storytelling decision is useful?",
+    tagsPlaceholder: "case-study, editorial, learning",
+  },
+  dribbble: {
+    label: "Dribbble",
+    description: "Search focused interface details and save the original shot link.",
+    briefPlaceholder: "e.g. A mobile learning progress component with clear mastery states and generous spacing.",
+    urlPlaceholder: "Paste the Dribbble shot link you chose",
+    titlePlaceholder: "e.g. Dribbble direction · mastery progress component",
+    purposePlaceholder: "Which interface detail is worth studying?",
+    tagsPlaceholder: "component, progress, mobile",
+  },
+  awwwards: {
+    label: "Awwwards",
+    description: "Explore considered web experiences and save the original site link.",
+    briefPlaceholder: "e.g. A restrained, globally credible education home page with elegant type and movement.",
+    urlPlaceholder: "Paste the Awwwards site link you chose",
+    titlePlaceholder: "e.g. Awwwards direction · editorial learning home page",
+    purposePlaceholder: "Which layout, type, or interaction principle is useful?",
+    tagsPlaceholder: "web, editorial, motion",
+  },
+  manual: {
+    label: "My library",
+    description: "Record a licensed, owned, or already-approved reference.",
+    briefPlaceholder: "e.g. A known reference for a region selector that feels international and clear.",
+    urlPlaceholder: "Paste the licensed or owned HTTPS reference link",
+    titlePlaceholder: "e.g. Approved direction · region selector",
+    purposePlaceholder: "What should this approved reference teach the team?",
+    tagsPlaceholder: "approved, pattern, responsive",
+  },
+  other: {
+    label: "Other source",
+    description: "Save another original HTTPS source with clear provenance.",
+    briefPlaceholder: "e.g. A thoughtful public-service interface with readable language and mobile-first navigation.",
+    urlPlaceholder: "Paste the original HTTPS source link",
+    titlePlaceholder: "e.g. External direction · clear mobile wayfinding",
+    purposePlaceholder: "What should Trussline learn from this source?",
+    tagsPlaceholder: "reference, responsive, clarity",
+  },
+};
+
+const designTargetSurfaces: Array<{ value: DesignTargetSurface; label: string }> = [
+  { value: "home", label: "Home page" },
+  { value: "dashboard", label: "Learner dashboard" },
+  { value: "mobile", label: "Mobile experience" },
+  { value: "admin", label: "Admin workspace" },
+  { value: "component", label: "Component" },
+  { value: "other", label: "Other interface" },
+];
+
 function formatRelativeDate(value: string) {
   const timestamp = new Date(value).getTime();
   if (!Number.isFinite(timestamp)) return "Recently";
@@ -94,7 +170,12 @@ function formatRelativeDate(value: string) {
 }
 
 async function readResponse(response: Response) {
-  const payload = await response.json().catch(() => ({})) as { error?: string; workspace?: AdminWorkspace; invitationDelivery?: "sent" | "queued" };
+  const payload = await response.json().catch(() => ({})) as {
+    error?: string;
+    workspace?: AdminWorkspace;
+    invitationDelivery?: "sent" | "queued";
+    proposal?: DesignStudioProposal;
+  };
   if (!response.ok) throw new Error(payload.error || "That change could not be saved. Please try again.");
   return payload;
 }
@@ -491,35 +572,161 @@ function PageCard({ page, onRefresh, onNotice }: { page: AdminPage; onRefresh: (
 }
 
 function DesignWorkspace({ workspace, onRefresh, onNotice }: { workspace: AdminWorkspace; onRefresh: () => Promise<void>; onNotice: (notice: { tone: "success" | "error"; text: string } | null) => void }) {
+  type ReferenceField = "title" | "purpose" | "notes" | "tags";
   const [form, setForm] = useState({ provider: "pinterest" as DesignReferenceProvider, sourceUrl: "", title: "", purpose: "", notes: "", tags: "" });
+  const [brief, setBrief] = useState("");
+  const [targetSurface, setTargetSurface] = useState<DesignTargetSurface>("home");
+  const [proposal, setProposal] = useState<DesignStudioProposal | null>(null);
+  const [touchedFields, setTouchedFields] = useState<Partial<Record<ReferenceField, true>>>({});
   const [saving, setSaving] = useState(false);
+  const [preparing, setPreparing] = useState(false);
+  const sourceProfile = designSourceProfiles[form.provider];
+
+  function setReferenceField(field: ReferenceField, value: string) {
+    setTouchedFields((current) => ({ ...current, [field]: true }));
+    setForm((current) => ({ ...current, [field]: value }));
+  }
+
+  function chooseProvider(provider: DesignReferenceProvider) {
+    setForm((current) => ({ ...current, provider }));
+    setProposal(null);
+  }
+
+  function providerForUrl(value: string): DesignReferenceProvider | undefined {
+    try {
+      const host = new URL(value).hostname.toLocaleLowerCase("en-US");
+      const matches = (domain: string) => host === domain || host.endsWith(`.${domain}`);
+      if (matches("pinterest.com") || host === "pin.it") return "pinterest";
+      if (matches("behance.net")) return "behance";
+      if (matches("dribbble.com")) return "dribbble";
+      if (matches("awwwards.com")) return "awwwards";
+    } catch {
+      // A partial address is normal while someone is pasting a link.
+    }
+    return undefined;
+  }
+
+  async function prepareDirection() {
+    setPreparing(true);
+    onNotice(null);
+    try {
+      const payload = await readResponse(await fetch("/api/admin/design-assist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ provider: form.provider, brief, targetSurface }),
+      }));
+      if (!payload.proposal) throw new Error("The studio assistant did not return a direction. Please try again.");
+      const next = payload.proposal;
+      setProposal(next);
+      setForm((current) => ({
+        ...current,
+        title: touchedFields.title || current.title ? current.title : next.title,
+        purpose: touchedFields.purpose || current.purpose ? current.purpose : next.purpose,
+        tags: touchedFields.tags || current.tags ? current.tags : next.tags.join(", "),
+        notes: touchedFields.notes || current.notes ? current.notes : next.notes,
+      }));
+      onNotice({ tone: "success", text: "Your editable research direction is ready. Nothing has been saved yet." });
+    } catch (error) {
+      onNotice({ tone: "error", text: error instanceof Error ? error.message : "The studio assistant could not prepare that direction." });
+    } finally {
+      setPreparing(false);
+    }
+  }
+
+  function applyProposal() {
+    if (!proposal) return;
+    setForm((current) => ({ ...current, title: proposal.title, purpose: proposal.purpose, tags: proposal.tags.join(", "), notes: proposal.notes }));
+    setTouchedFields({ title: true, purpose: true, tags: true, notes: true });
+    onNotice({ tone: "success", text: "The guided fields are now in your editable reference form." });
+  }
+
+  function openSourceSearch() {
+    if (!proposal?.sourceSearchUrl) {
+      onNotice({ tone: "error", text: "This source does not have a public search handoff. Add its original HTTPS link directly instead." });
+      return;
+    }
+    const searchWindow = window.open(proposal.sourceSearchUrl, "_blank", "noopener,noreferrer");
+    if (!searchWindow) {
+      onNotice({ tone: "error", text: "Your browser blocked the search tab. Allow pop-ups for this site, then try the source search again." });
+    }
+  }
 
   async function addReference(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setSaving(true);
     onNotice(null);
     try {
-      await readResponse(await fetch("/api/admin/design-references", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...form, tags: form.tags.split(",").map((tag) => tag.trim()).filter(Boolean) }) }));
+      await readResponse(await fetch("/api/admin/design-references", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...form,
+          tags: form.tags.split(",").map((tag) => tag.trim()).filter(Boolean),
+          designBrief: brief || null,
+          searchQuery: proposal?.searchQuery ?? null,
+          targetSurface,
+          selectionMethod: "manual_link",
+          assistantMetadata: proposal ? { source: proposal.source, version: proposal.version, appliedFields: ["title", "purpose", "tags", "notes"] } : {},
+        }),
+      }));
       await onRefresh();
       setForm({ provider: "pinterest", sourceUrl: "", title: "", purpose: "", notes: "", tags: "" });
-      onNotice({ tone: "success", text: "The reference was saved with its source link and purpose." });
+      setBrief("");
+      setTargetSurface("home");
+      setProposal(null);
+      setTouchedFields({});
+      onNotice({ tone: "success", text: "The original reference and your design notes are saved." });
     } catch (error) {
       onNotice({ tone: "error", text: error instanceof Error ? error.message : "The reference could not be saved." });
     } finally { setSaving(false); }
   }
 
   return <section className={styles.detailArea} aria-labelledby="design-title">
-    <div className={styles.pageHeading}><div><p className={styles.eyebrow}>Design library</p><h1 id="design-title">Learn from references without copying them.</h1><p>Save the original link, describe the principle worth carrying forward, and keep the result uniquely Trussline.</p></div></div>
-    <section className={styles.sourceEthics}><Globe2 size={20} aria-hidden="true" /><div><h2>Reference links, not a scraper</h2><p>Pinterest, Behance, Dribbble, and other sources stay on their original platforms. Future connected imports will require each provider&apos;s official consent flow.</p></div></section>
-    <div className={styles.designLayout}>
+    <div className={styles.pageHeading}><div><p className={styles.eyebrow}>Design library</p><h1 id="design-title">Build a direction before you save a reference.</h1><p>Describe the experience you want, refine the guided direction, then save the original link and the principle that makes it useful for Trussline.</p></div></div>
+    <section className={styles.sourceEthics}><Globe2 size={20} aria-hidden="true" /><div><h2>Search handoff, not source copying</h2><p>Pinterest and other design sources stay on their own platforms. We prepare your search here, open it in a secure tab, and store only the original link and your team&apos;s notes.</p></div></section>
+    <div className={styles.designStudioLayout}>
+      <div className={styles.designStudioColumn}>
+        <section className={styles.designBriefCard} aria-labelledby="design-brief-title">
+          <div className={styles.formHeader}><div><p className={styles.panelKicker}>1 · Describe the direction</p><h2 id="design-brief-title">Start with what you want to make.</h2></div><Sparkles size={20} aria-hidden="true" /></div>
+          <p className={styles.formIntro}>The studio assistant uses only this brief and the Trussline design system. It does not scan or copy material from the source platform.</p>
+          <div className={styles.providerGrid} aria-label="Choose a design source">
+            {(Object.keys(designSourceProfiles) as DesignReferenceProvider[]).map((provider) => {
+              const profile = designSourceProfiles[provider];
+              return <button key={provider} type="button" className={styles.providerCard} data-selected={form.provider === provider} aria-pressed={form.provider === provider} onClick={() => chooseProvider(provider)}>
+                <span>{profile.label}</span><small>{profile.description}</small>
+              </button>;
+            })}
+          </div>
+          <label>Where will this design appear?<select value={targetSurface} onChange={(event) => { setTargetSurface(event.target.value as DesignTargetSurface); setProposal(null); }}>{designTargetSurfaces.map((surface) => <option key={surface.value} value={surface.value}>{surface.label}</option>)}</select></label>
+          <label>Describe the experience you want<textarea value={brief} onChange={(event) => { setBrief(event.target.value); setProposal(null); }} rows={4} maxLength={1200} placeholder={sourceProfile.briefPlaceholder} required /></label>
+          <button className={styles.outlineButton} type="button" onClick={prepareDirection} disabled={preparing || brief.trim().length < 8}>{preparing ? "Preparing direction…" : "Prepare a guided direction"}<Sparkles size={16} aria-hidden="true" /></button>
+        </section>
+
+        {proposal ? <section className={styles.proposalCard} aria-labelledby="proposal-title">
+          <div className={styles.proposalHeading}><div><p className={styles.panelKicker}>Guided suggestion</p><h2 id="proposal-title">A focused research brief.</h2></div><span className={styles.statusPill} data-tone="attention">Review first</span></div>
+          <div className={styles.searchQuery}><span>Suggested search</span><strong>{proposal.searchQuery}</strong></div>
+          <p>{proposal.rationale}</p>
+          <div className={styles.proposalActions}>
+            {proposal.sourceSearchUrl ? <button type="button" className={styles.textButton} onClick={openSourceSearch}>Search {sourceProfile.label}<ExternalLink size={15} aria-hidden="true" /></button> : null}
+            <button type="button" className={styles.textButton} onClick={applyProposal}>Apply suggested fields <ChevronRight size={15} aria-hidden="true" /></button>
+          </div>
+          <ul className={styles.proposalChecks}>{proposal.safetyNotes.map((note) => <li key={note}><CheckCircle2 size={14} aria-hidden="true" />{note}</li>)}</ul>
+        </section> : null}
+      </div>
+
       <form className={styles.referenceForm} onSubmit={addReference}>
-        <div className={styles.formHeader}><div><p className={styles.panelKicker}>New reference</p><h2>Save a design direction</h2></div><Sparkles size={20} aria-hidden="true" /></div>
-        <label>Source<select value={form.provider} onChange={(event) => setForm({ ...form, provider: event.target.value as DesignReferenceProvider })}><option value="pinterest">Pinterest</option><option value="behance">Behance</option><option value="dribbble">Dribbble</option><option value="awwwards">Awwwards</option><option value="manual">Manual reference</option><option value="other">Other source</option></select></label>
-        <label>Original HTTPS link<input type="url" value={form.sourceUrl} onChange={(event) => setForm({ ...form, sourceUrl: event.target.value })} placeholder="https://…" required /></label>
-        <label>Reference title<input value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} maxLength={180} required /></label>
-        <label>What is useful here?<input value={form.purpose} onChange={(event) => setForm({ ...form, purpose: event.target.value })} maxLength={240} placeholder="e.g. calm mobile hierarchy" /></label>
-        <label>Tags<textarea value={form.tags} onChange={(event) => setForm({ ...form, tags: event.target.value })} rows={2} placeholder="mobile, navigation, editorial" /></label>
-        <label>Private notes<textarea value={form.notes} onChange={(event) => setForm({ ...form, notes: event.target.value })} rows={3} maxLength={2000} /></label>
+        <div className={styles.formHeader}><div><p className={styles.panelKicker}>2 · Save your choice</p><h2>Record the reference you selected.</h2></div><ArrowUpRight size={20} aria-hidden="true" /></div>
+        <p className={styles.formIntro}>Choose a Pin, Board, case study, or original page in the source tab. Return here with its original HTTPS link. Your fields remain fully editable.</p>
+        <label>Original {sourceProfile.label} link<input type="url" value={form.sourceUrl} onChange={(event) => {
+          const sourceUrl = event.target.value;
+          const detectedProvider = providerForUrl(sourceUrl);
+          setForm((current) => ({ ...current, sourceUrl, provider: detectedProvider ?? current.provider }));
+          if (detectedProvider) setProposal(null);
+        }} placeholder={sourceProfile.urlPlaceholder} required /></label>
+        <label>Reference title<input value={form.title} onChange={(event) => setReferenceField("title", event.target.value)} maxLength={180} placeholder={sourceProfile.titlePlaceholder} required /></label>
+        <label>What is useful here?<input value={form.purpose} onChange={(event) => setReferenceField("purpose", event.target.value)} maxLength={240} placeholder={sourceProfile.purposePlaceholder} /></label>
+        <label>Tags<textarea value={form.tags} onChange={(event) => setReferenceField("tags", event.target.value)} rows={2} placeholder={sourceProfile.tagsPlaceholder} /></label>
+        <label>Private notes<textarea value={form.notes} onChange={(event) => setReferenceField("notes", event.target.value)} rows={4} maxLength={2000} placeholder="What should the team remember when adapting this direction?" /></label>
         <button className={styles.primaryButton} type="submit" disabled={saving}>{saving ? "Saving…" : "Save reference"}<ChevronRight size={16} aria-hidden="true" /></button>
       </form>
       <div className={styles.referenceList}>{workspace.references.map((reference) => <ReferenceCard key={reference.id} reference={reference} />)}{!workspace.references.length ? <p className={styles.emptyCopy}>Save the references that sharpen the product, then record the principle—not a copied layout.</p> : null}</div>
@@ -531,6 +738,8 @@ function ReferenceCard({ reference }: { reference: AdminDesignReference }) {
   return <article className={styles.referenceCard}>
     <div className={styles.referenceMeta}><span>{reference.provider}</span><span className={styles.statusPill} data-tone={statusTone(reference.status)}>{reference.status}</span></div>
     <h2>{reference.title}</h2><p>{reference.purpose || "No design principle recorded yet."}</p>
+    {reference.targetSurface || reference.assistantSource ? <div className={styles.referenceFacts}>{reference.targetSurface ? <span>{reference.targetSurface.replace("_", " ")} focus</span> : null}{reference.assistantSource ? <span>Guided brief</span> : null}</div> : null}
+    {reference.searchQuery ? <p className={styles.referenceQuery}>Research query · {reference.searchQuery}</p> : null}
     {reference.tags.length ? <div className={styles.tags}>{reference.tags.map((tag) => <span key={tag}>{tag}</span>)}</div> : null}
     {reference.notes ? <p className={styles.referenceNotes}>{reference.notes}</p> : null}
     <a href={reference.sourceUrl} target="_blank" rel="noreferrer" className={styles.sourceLink}>Open original <ExternalLink size={15} aria-hidden="true" /></a>

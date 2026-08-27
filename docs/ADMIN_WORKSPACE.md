@@ -49,7 +49,23 @@ Only published pages, revisions, and sections can be exposed to the public rende
 
 ## Design references
 
-The first release is a curated design library, not a scraper. A reference stores its original HTTPS URL, provider, purpose, tags, notes, review state, and (where appropriate) a user-owned or licensed upload. It never imports third-party account credentials, cookies, page markup, or artwork by default.
+The first release is a curated design library, not a scraper. A reference stores its original HTTPS URL, provider, purpose, tags, notes, review state, target surface, selection method, and (where appropriate) a user-owned or licensed upload. It never imports third-party account credentials, cookies, page markup, or artwork by default.
+
+The Design Studio follows a deliberate research handoff:
+
+```text
+Administrator describes a direction
+→ a deterministic studio assistant prepares an editable query, tags, and notes
+→ the selected provider opens in its own secure search tab
+→ the administrator selects a source and returns with its canonical URL
+→ Trussline stores the original link and the administrator's own rationale
+```
+
+Pinterest cannot be embedded as an in-product homepage or search page because
+the provider blocks cross-site framing. The product therefore opens its public
+search with the prepared query, rather than trying to scrape, proxy, or mimic
+the source. The assistant receives only the administrator-authored brief; it
+does not fetch or analyse third-party artwork, copy, or account data.
 
 Any future Pinterest connection must use the provider's approved OAuth flow, minimal read-only scopes, encrypted server-side tokens, consent, revocation, and audit logging. Behance and similar services start with canonical links unless an official supported API integration is approved.
 

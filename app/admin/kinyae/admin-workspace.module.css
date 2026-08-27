@@ -552,6 +552,47 @@
 .sourceLink { display: inline-flex; align-items: center; gap: 7px; margin-block-start: 16px; color: var(--blue); font-size: 12px; font-weight: 500; text-decoration: none; }
 .sourceLink:hover { color: var(--blue-hover); }
 
+.designStudioLayout { display: grid; grid-template-columns: minmax(0, .9fr) minmax(280px, .92fr) minmax(0, 1.12fr); gap: 16px; align-items: start; margin-block-start: 33px; }
+.designStudioColumn { display: grid; min-inline-size: 0; gap: 16px; }
+.designBriefCard,
+.proposalCard { display: grid; min-inline-size: 0; gap: 16px; padding: clamp(22px, 3.2vw, 32px); border: 1px solid var(--line); border-radius: 12px; background: color-mix(in srgb, var(--paper) 72%, var(--surface)); }
+.proposalCard { background: color-mix(in srgb, var(--blue-soft) 30%, var(--surface)); }
+.designBriefCard>label { display: grid; gap: 7px; min-inline-size: 0; color: var(--ink); font-size: 12px; font-weight: 500; }
+.designBriefCard input,
+.designBriefCard textarea,
+.designBriefCard select { box-sizing: border-box; inline-size: 100%; min-inline-size: 0; min-block-size: 44px; padding: 0 11px; border: 1px solid var(--line); border-radius: 9px; outline: 0; color: var(--ink); background: var(--surface); font: 400 13px var(--font-sans), Arial, sans-serif; transition: border-color 180ms var(--ease), box-shadow 180ms var(--ease), background 180ms var(--ease); }
+.designBriefCard textarea { min-block-size: 108px; padding-block: 10px; resize: vertical; }
+.designBriefCard input:hover,
+.designBriefCard textarea:hover,
+.designBriefCard select:hover { border-color: color-mix(in srgb, var(--blue) 34%, var(--line)); }
+.designBriefCard input:focus-visible,
+.designBriefCard textarea:focus-visible,
+.designBriefCard select:focus-visible,
+.providerCard:focus-visible { border-color: var(--blue); box-shadow: 0 0 0 3px color-mix(in srgb, var(--blue) 20%, transparent); }
+.formIntro { margin: -4px 0 2px; color: var(--slate); font-size: 12px; line-height: 1.65; }
+.providerGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.providerCard { display: grid; min-inline-size: 0; min-block-size: 88px; padding: 13px; border: 1px solid var(--line); border-radius: 10px; color: var(--ink); background: var(--surface); text-align: start; cursor: pointer; transition: border-color 180ms var(--ease), background 180ms var(--ease), transform 180ms var(--ease); }
+.providerCard:hover { border-color: color-mix(in srgb, var(--blue) 46%, var(--line)); transform: translateY(-1px); }
+.providerCard[data-selected="true"] { border-color: var(--blue); background: var(--blue-soft); box-shadow: inset 3px 0 0 var(--blue); }
+.providerCard span { overflow: hidden; color: var(--ink); font-size: 12px; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
+.providerCard small { display: -webkit-box; overflow: hidden; margin-block-start: 5px; color: var(--slate); font-size: 10px; line-height: 1.45; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+.proposalHeading { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.proposalHeading h2 { margin: 4px 0 0; color: var(--ink); font-family: var(--font-display), Georgia, serif; font-size: 25px; font-weight: 400; letter-spacing: -.025em; line-height: 1.1; }
+.searchQuery { display: grid; gap: 6px; padding: 13px; border: 1px solid color-mix(in srgb, var(--blue) 18%, var(--line)); border-radius: 10px; background: var(--surface); }
+.searchQuery span { color: var(--muted); font: 500 9px var(--font-code), monospace; letter-spacing: .08em; text-transform: uppercase; }
+.searchQuery strong { overflow-wrap: anywhere; color: var(--ink); font-size: 13px; font-weight: 500; line-height: 1.45; }
+.proposalCard>p { margin: -2px 0 0; color: var(--slate); font-size: 12px; line-height: 1.65; }
+.proposalActions { display: flex; flex-wrap: wrap; gap: 8px; }
+.proposalActions .textButton { min-block-size: 38px; padding: 0 5px; }
+.proposalChecks { display: grid; gap: 7px; margin: 0; padding: 0; list-style: none; }
+.proposalChecks li { display: flex; align-items: flex-start; gap: 7px; color: var(--slate); font-size: 11px; line-height: 1.5; }
+.proposalChecks svg { flex: none; margin-block-start: 1px; color: var(--teal); }
+.referenceFacts { display: flex; flex-wrap: wrap; gap: 6px; margin-block: 12px -2px; }
+.referenceFacts span,
+.referenceQuery { color: var(--muted); font: 400 10px var(--font-code), monospace; }
+.referenceFacts span { padding: 4px 6px; border-radius: 999px; background: var(--paper); text-transform: capitalize; }
+.referenceQuery { overflow-wrap: anywhere; margin-block: 13px -2px !important; line-height: 1.5 !important; }
+
 .recommendationList { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; margin-block: 31px 19px; }
 .recommendationCard { min-inline-size: 0; padding: 20px; border: 1px solid var(--line); border-inline-start: 3px solid var(--blue); border-radius: 12px; background: var(--surface); }
 .recommendationCard[data-priority="high"],.recommendationCard[data-priority="critical"] { border-inline-start-color: var(--coral); }
@@ -574,6 +615,8 @@
 @media (max-width: 1020px) {
   .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .peopleLayout,.pagesLayout,.designLayout { grid-template-columns: minmax(260px, .72fr) minmax(0, 1.28fr); }
+  .designStudioLayout { grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); }
+  .designStudioLayout .referenceList { grid-column: 1 / -1; grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .memberControls { grid-template-columns: 1fr 1fr; }
   .memberControls .smallSaveButton { grid-column: span 2; inline-size: 100%; }
   .addSectionForm { grid-template-columns: 1fr 1fr; }
@@ -600,7 +643,8 @@
   .overviewHero,.pageHeading { grid-template-columns: 1fr; gap: 24px; }
   .overviewHero h1,.pageHeading h1 { font-size: clamp(40px, 8.5vw, 58px); }
   .overviewHero>div>p:last-child,.pageHeading>div>p:last-child { font-size: 15px; }
-  .profileLayout,.peopleLayout,.pagesLayout,.designLayout { grid-template-columns: 1fr; }
+  .profileLayout,.peopleLayout,.pagesLayout,.designLayout,.designStudioLayout { grid-template-columns: 1fr; }
+  .designStudioLayout .referenceList { grid-column: auto; grid-template-columns: 1fr; }
   .profileCard { min-block-size: 280px; }
   .workspaceNotice { inset-inline: 16px; inset-block-start: 84px; }
   .recommendationList { grid-template-columns: 1fr; }
@@ -622,11 +666,15 @@
   .metric strong { margin-block: 14px 5px; font-size: 37px; }
   .metric p,.metric small { font-size: 10px; }
   .overviewGrid { grid-template-columns: 1fr; }
-  .featurePanel,.guidancePanel,.activityPanel,.editorCard,.profileCard,.inviteCard,.newPageCard,.pageCard,.referenceForm,.referenceCard { padding: 18px; }
+  .featurePanel,.guidancePanel,.activityPanel,.editorCard,.profileCard,.inviteCard,.newPageCard,.pageCard,.referenceForm,.referenceCard,.designBriefCard,.proposalCard { padding: 18px; }
   .sectionHeading h2,.formHeader h2,.activityPanel h2,.referenceCard h2,.recommendationCard h2 { font-size: 23px; }
   .profilePhotoWrap { inline-size: 154px; }
   .profileCard { min-block-size: 251px; padding: 22px; }
   .editorCard .primaryButton,.inviteCard .primaryButton,.newPageCard .primaryButton,.referenceForm .primaryButton { inline-size: 100%; }
+  .providerGrid { grid-template-columns: 1fr; }
+  .providerCard { min-block-size: 68px; }
+  .proposalActions { display: grid; grid-template-columns: 1fr; }
+  .proposalActions .textButton { justify-content: flex-start; }
   .memberIdentity { gap: 8px; }
   .memberIdentity .statusPill { margin-inline-start: 3px; }
   .memberControls { grid-template-columns: 1fr; }

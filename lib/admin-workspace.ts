@@ -11,6 +11,8 @@ const MEMBER_STATUSES = ["invited", "active", "inactive", "suspended"] as const;
 const PAGE_STATUSES = ["draft", "in_review", "published", "archived"] as const;
 const REFERENCE_PROVIDERS = ["pinterest", "behance", "dribbble", "awwwards", "manual", "other"] as const;
 const REFERENCE_STATUSES = ["saved", "reviewing", "approved", "archived"] as const;
+const DESIGN_TARGET_SURFACES = ["home", "dashboard", "mobile", "admin", "component", "other"] as const;
+const DESIGN_SELECTION_METHODS = ["manual_link", "provider_oauth", "owned_upload"] as const;
 const SECTION_TYPES = [
   "hero",
   "proof_strip",
@@ -30,6 +32,8 @@ export type AdminMemberStatus = (typeof MEMBER_STATUSES)[number];
 export type SitePageStatus = (typeof PAGE_STATUSES)[number];
 export type DesignReferenceProvider = (typeof REFERENCE_PROVIDERS)[number];
 export type DesignReferenceStatus = (typeof REFERENCE_STATUSES)[number];
+export type DesignTargetSurface = (typeof DESIGN_TARGET_SURFACES)[number];
+export type DesignSelectionMethod = (typeof DESIGN_SELECTION_METHODS)[number];
 export type SiteSectionType = (typeof SECTION_TYPES)[number];
 export type AdminWorkspacePermission = "profile" | "people" | "content" | "publish" | "design" | "recommendations";
 
@@ -69,6 +73,11 @@ export type AdminDesignReference = {
   notes: string | null;
   status: DesignReferenceStatus;
   rightsStatus: "link_only" | "owned_upload" | "licensed_upload";
+  searchQuery: string | null;
+  designBrief: string | null;
+  targetSurface: DesignTargetSurface | null;
+  selectionMethod: DesignSelectionMethod;
+  assistantSource: "rules" | "ai" | null;
   updatedAt: string;
 };
 
@@ -210,6 +219,18 @@ function asReferenceStatus(value: unknown): DesignReferenceStatus | undefined {
     : undefined;
 }
 
+function asDesignTargetSurface(value: unknown): DesignTargetSurface | undefined {
+  return typeof value === "string" && (DESIGN_TARGET_SURFACES as readonly string[]).includes(value)
+    ? value as DesignTargetSurface
+    : undefined;
+}
+
+function asDesignSelectionMethod(value: unknown): DesignSelectionMethod | undefined {
+  return typeof value === "string" && (DESIGN_SELECTION_METHODS as readonly string[]).includes(value)
+    ? value as DesignSelectionMethod
+    : undefined;
+}
+
 function asSectionType(value: unknown): SiteSectionType | undefined {
   return typeof value === "string" && (SECTION_TYPES as readonly string[]).includes(value)
     ? value as SiteSectionType
@@ -251,6 +272,35 @@ function normalizeHttpsUrl(value: unknown) {
   } catch {
     return undefined;
   }
+}
+
+function providerMatchesSourceUrl(provider: DesignReferenceProvider, sourceUrl: string) {
+  if (provider === "manual" || provider === "other") return true;
+  try {
+    const hostname = new URL(sourceUrl).hostname.toLocaleLowerCase("en-US");
+    const matchesDomain = (domain: string) => hostname === domain || hostname.endsWith(`.${domain}`);
+    if (provider === "pinterest") return matchesDomain("pinterest.com") || hostname === "pin.it";
+    if (provider === "behance") return matchesDomain("behance.net");
+    if (provider === "dribbble") return matchesDomain("dribbble.com");
+    return matchesDomain("awwwards.com");
+  } catch {
+    return false;
+  }
+}
+
+function normalizeAssistantMetadata(value: unknown) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return {};
+  const record = value as Record<string, unknown>;
+  const source = record.source === "rules" || record.source === "ai" ? record.source : undefined;
+  const version = safeText(record.version, 80);
+  const appliedFields = Array.isArray(record.appliedFields)
+    ? record.appliedFields.filter((field): field is string => typeof field === "string" && ["title", "purpose", "tags", "notes"].includes(field)).slice(0, 4)
+    : [];
+  return {
+    ...(source ? { source } : {}),
+    ...(version ? { version } : {}),
+    ...(appliedFields.length ? { appliedFields } : {}),
+  };
 }
 
 async function avatarUrl(client: SupabaseClient, path: string | null) {
@@ -348,7 +398,7 @@ export async function getAdminWorkspace(): Promise<AdminWorkspace> {
       client.from("site_pages").select("id, slug, title, navigation_label, summary, status, updated_at").order("updated_at", { ascending: false }),
       client.from("site_page_revisions").select("id, page_id"),
       client.from("site_page_sections").select("id, revision_id"),
-      client.from("design_references").select("id, provider, source_url, title, purpose, tags, notes, status, rights_status, updated_at").order("updated_at", { ascending: false }).limit(24),
+      client.from("design_references").select("id, provider, source_url, title, purpose, tags, notes, status, rights_status, search_query, design_brief, target_surface, selection_method, assistant_metadata, updated_at").order("updated_at", { ascending: false }).limit(24),
       client.from("admin_recommendations").select("id, scope, priority, title, rationale, suggested_action, source, status, created_at").in("status", ["open", "accepted"]).order("created_at", { ascending: false }).limit(12),
       client.from("admin_audit_events").select("id, action, target_type, target_id, occurred_at").order("occurred_at", { ascending: false }).limit(12),
     ]);
@@ -400,6 +450,14 @@ export async function getAdminWorkspace(): Promise<AdminWorkspace> {
       notes: row.notes as string | null,
       status: row.status as DesignReferenceStatus,
       rightsStatus: row.rights_status as AdminDesignReference["rightsStatus"],
+      searchQuery: row.search_query as string | null,
+      designBrief: row.design_brief as string | null,
+      targetSurface: row.target_surface as DesignTargetSurface | null,
+      selectionMethod: row.selection_method as DesignSelectionMethod,
+      assistantSource: row.assistant_metadata && typeof row.assistant_metadata === "object" && !Array.isArray(row.assistant_metadata)
+        && ((row.assistant_metadata as Record<string, unknown>).source === "rules" || (row.assistant_metadata as Record<string, unknown>).source === "ai")
+        ? (row.assistant_metadata as { source: "rules" | "ai" }).source
+        : null,
       updatedAt: row.updated_at as string,
     }));
 
@@ -701,20 +759,53 @@ export async function addPageSection(pageId: string, input: { sectionType?: unkn
   return { ok: true as const };
 }
 
-export async function createDesignReference(input: { provider?: unknown; sourceUrl?: unknown; title?: unknown; purpose?: unknown; notes?: unknown; tags?: unknown }) {
+export async function createDesignReference(
+  input: {
+    provider?: unknown;
+    sourceUrl?: unknown;
+    title?: unknown;
+    purpose?: unknown;
+    notes?: unknown;
+    tags?: unknown;
+    searchQuery?: unknown;
+    designBrief?: unknown;
+    targetSurface?: unknown;
+    selectionMethod?: unknown;
+    assistantMetadata?: unknown;
+  },
+  actorMemberId?: string,
+) {
   const client = adminClient();
   if (!client) return { ok: false as const, reason: "not_configured" as const };
-  const actor = await bootstrapOwner(client);
-  if (!actor) return { ok: false as const, reason: "not_ready" as const };
+  const actorResult = actorMemberId
+    ? await client.from("admin_members").select("id, status").eq("id", actorMemberId).maybeSingle()
+    : undefined;
+  const actor = actorMemberId ? actorResult?.data : await bootstrapOwner(client);
+  if (!actor || actor.status !== "active") return { ok: false as const, reason: "not_ready" as const };
   const provider = asReferenceProvider(input.provider);
   const sourceUrl = normalizeHttpsUrl(input.sourceUrl);
   const title = safeText(input.title, 180);
   const purpose = safeOptionalText(input.purpose, 240);
   const notes = safeOptionalText(input.notes, 2_000);
+  const searchQuery = safeOptionalText(input.searchQuery ?? null, 240);
+  const designBrief = safeOptionalText(input.designBrief ?? null, 1_200);
+  const targetSurface = input.targetSurface === undefined || input.targetSurface === null || input.targetSurface === ""
+    ? null
+    : asDesignTargetSurface(input.targetSurface);
+  const selectionMethod = input.selectionMethod === undefined ? "manual_link" : asDesignSelectionMethod(input.selectionMethod);
+  const assistantMetadata = normalizeAssistantMetadata(input.assistantMetadata);
   const tags = Array.isArray(input.tags)
     ? input.tags.map((tag) => safeText(tag, 32)).filter((tag): tag is string => Boolean(tag)).slice(0, 12)
     : [];
-  if (!provider || !sourceUrl || !title || purpose === undefined || notes === undefined) return { ok: false as const, reason: "invalid" as const };
+  const hasInvalidTargetSurface = input.targetSurface !== undefined
+    && input.targetSurface !== null
+    && input.targetSurface !== ""
+    && !targetSurface;
+  if (!provider || !sourceUrl || !providerMatchesSourceUrl(provider, sourceUrl) || !title
+    || purpose === undefined || notes === undefined || searchQuery === undefined
+    || designBrief === undefined || hasInvalidTargetSurface || !selectionMethod) {
+    return { ok: false as const, reason: "invalid" as const };
+  }
 
   const result = await client.from("design_references").insert({
     provider,
@@ -723,12 +814,17 @@ export async function createDesignReference(input: { provider?: unknown; sourceU
     purpose,
     notes,
     tags,
+    search_query: searchQuery,
+    design_brief: designBrief,
+    target_surface: targetSurface,
+    selection_method: selectionMethod,
+    assistant_metadata: assistantMetadata,
     rights_status: "link_only",
     status: "saved",
     created_by: actor.id,
   }).select("id").maybeSingle();
   if (result.error || !result.data) return { ok: false as const, reason: "write_failed" as const };
-  await writeAudit(client, actor.id, "admin.design_reference.created", "design_reference", result.data.id as string, { provider });
+  await writeAudit(client, actor.id, "admin.design_reference.created", "design_reference", result.data.id as string, { provider, selectionMethod, targetSurface, assistantSource: assistantMetadata.source ?? "manual" });
   return { ok: true as const };
 }
 
